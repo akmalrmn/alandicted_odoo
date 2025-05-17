@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Dashboard Template -->
+    <template id="dashboard_template" name="Dashboard">
+        <t t-call="alandicted_odoo.base_layout">
+            <t t-set="page_title">Dashboard</t>
+            <t t-set="bg_color">#f0f7ff</t>
+            <t t-set="header_color">#3498db</t>
+            <t t-set="title_color">#2980b9</t>
+            <t t-set="extra_css">
+                .dashboard-section {
+                    margin-bottom: 30px;
+                }
+                .section-title {
+                    font-size: 24px;
+                    margin-bottom: 15px;
+                    font-weight: 500;
+                    color: #333;
+                }
+                .metric-card {
+                    background-color: #f5f5f5;
+                    border-radius: 8px;
+                    padding: 20px;
+                    height: 100%;
+                    color: #333;
+                    border-left: 5px solid #57d785;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                }
+                .metric-title {
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin-bottom: 15px;
+                    color: #1e6b45;
+                }
+                .metric-value {
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+                .metric-subvalue {
+                    font-size: 16px;
+                    margin-top: 5px;
+                }
+                .chart-container {
+                    height: 200px;
+                    margin-top: 15px;
+                }
+                .list-items {
+                    margin-top: 15px;
+                    padding-left: 10px;
+                }
+                .list-items li {
+                    margin-bottom: 5px;
+                    list-style-type: decimal;
+                }
+                .pie-container {
+                    height: 180px;
+                    margin: 0 auto;
+                }
+                .export-btn {
+                    font-size: 14px;
+                    padding: 3px 8px;
+                    background-color: white;
+                    border: none;
+                    border-radius: 4px;
+                    float: right;
+                    opacity: 0.8;
+                }
+                .export-btn:hover {
+                    opacity: 1;
+                }
+                .dashboard-card-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+            </t>
+            
+            <!-- Sales Section -->
+            <div class="dashboard-section">
+                <h2 class="section-title">Penjualan</h2>
+                <div class="row">
+                    <!-- Total Sales Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Total Penjualan</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <div class="metric-value">312,000</div>
+                            <div class="metric-subvalue">21,000 / Bulan</div>
+                            <!-- Bar Chart for Monthly Sales -->
+                            <div class="chart-container">
+                                <canvas id="monthlySalesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Top Products Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Barang terlaris</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <!-- Bar Chart for Top Products -->
+                            <div class="chart-container">
+                                <canvas id="topProductsChart"></canvas>
+                            </div>
+                            <ul class="list-items">
+                                <li>Kabel listrik (3,100 pcs)</li>
+                                <li>Solar panel (2,819 pcs)</li>
+                                <li>Generator (1,400 pcs)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Top Customers Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Konsumen utama</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <!-- Pie Chart for Customer Breakdown -->
+                            <div class="pie-container">
+                                <canvas id="customerPieChart"></canvas>
+                            </div>
+                            <ul class="list-items">
+                                <li>PLN (98%)</li>
+                                <li>Conko (1%)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Finance Section -->
+            <div class="dashboard-section">
+                <h2 class="section-title">Keuangan</h2>
+                <div class="row">
+                    <!-- Revenue Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Revenue</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <div class="metric-value">Rp212,000,000,000</div>
+                            <div class="metric-subvalue">Rp3,000,000 / Bulan</div>
+                            <!-- Line Chart for Revenue Trend -->
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profit Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Keuntungan</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <div class="metric-value">Rp30,000,000,000</div>
+                            <div class="metric-subvalue">Rp772,000,000 / Bulan</div>
+                            <!-- Line Chart for Profit Trend -->
+                            <div class="chart-container">
+                                <canvas id="profitChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Most Expensive Products Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Barang Termahal</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <!-- Horizontal Bar Chart for Product Prices -->
+                            <div class="chart-container">
+                                <canvas id="expensiveProductsChart"></canvas>
+                            </div>
+                            <ul class="list-items">
+                                <li>Generator (Rp300,000,000)</li>
+                                <li>Kabel listrik (Rp20,000,000)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Chart.js library and initialize charts -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Monthly Sales Chart
+                    var monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+                    var monthlySalesChart = new Chart(monthlySalesCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Sales',
+                                data: [19000, 22000, 18000, 24000, 21000, 25000],
+                                backgroundColor: 'rgba(30, 107, 69, 0.7)',
+                                borderColor: 'rgba(30, 107, 69, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+
+                    // Top Products Chart
+                    var topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+                    var topProductsChart = new Chart(topProductsCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Kabel listrik', 'Solar panel', 'Generator'],
+                            datasets: [{
+                                label: 'Units Sold',
+                                data: [3100, 2819, 1400],
+                                backgroundColor: 'rgba(30, 107, 69, 0.7)',
+                                borderColor: 'rgba(30, 107, 69, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+
+                    // Customer Pie Chart
+                    var customerPieCtx = document.getElementById('customerPieChart').getContext('2d');
+                    var customerPieChart = new Chart(customerPieCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['PLN', 'Conko', 'Others'],
+                            datasets: [{
+                                data: [98, 1, 1],
+                                backgroundColor: [
+                                    'rgba(30, 107, 69, 0.8)',
+                                    'rgba(46, 204, 113, 0.8)',
+                                    'rgba(82, 190, 128, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(30, 107, 69, 1)',
+                                    'rgba(46, 204, 113, 1)',
+                                    'rgba(82, 190, 128, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Revenue Chart
+                    var revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                    var revenueChart = new Chart(revenueCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Revenue',
+                                data: [2800000, 3200000, 2900000, 3500000, 3000000, 3800000],
+                                backgroundColor: 'rgba(30, 107, 69, 0.1)',
+                                borderColor: 'rgba(30, 107, 69, 1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+
+                    // Profit Chart
+                    var profitCtx = document.getElementById('profitChart').getContext('2d');
+                    var profitChart = new Chart(profitCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Profit',
+                                data: [600000, 750000, 680000, 820000, 772000, 850000],
+                                backgroundColor: 'rgba(30, 107, 69, 0.1)',
+                                borderColor: 'rgba(30, 107, 69, 1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+
+                    // Expensive Products Chart
+                    var expensiveProductsCtx = document.getElementById('expensiveProductsChart').getContext('2d');
+                    var expensiveProductsChart = new Chart(expensiveProductsCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Generator', 'Kabel listrik'],
+                            datasets: [{
+                                label: 'Price (Rp)',
+                                data: [300000000, 20000000],
+                                backgroundColor: 'rgba(30, 107, 69, 0.7)',
+                                borderColor: 'rgba(30, 107, 69, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo> 

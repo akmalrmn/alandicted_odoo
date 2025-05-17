@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Simple Debug Template - Independent of the base_layout -->
+    <template id="debug_template" name="Debug Template">
+        <html>
+            <head>
+                <title>Alandicted - Debug Template</title>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"/>
+                <style>
+                    body {
+                        font-family: 'Roboto', sans-serif;
+                        padding: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container mt-5">
+                    <div class="jumbotron">
+                        <h1>Debug Template Successfully Loaded!</h1>
+                        <p>This template is loaded directly without t-call dependencies.</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">Template Information</div>
+                        <div class="card-body">
+                            <p>If you can see this page, it means:</p>
+                            <ul>
+                                <li>The module is installed properly</li>
+                                <li>Template loading works</li>
+                                <li>Basic XML ID resolution is functioning</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <a href="/alandicted" class="btn btn-primary">Return to Home</a>
+                </div>
+            </body>
+        </html>
+    </template>
+</odoo> 

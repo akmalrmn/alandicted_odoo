@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Base Layout Template -->
+    <template id="base_layout" name="Alandicted Base Layout">
+        <html>
+            <head>
+                <title>Alandicted - <t t-esc="page_title"/></title>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"/>
+                <style>
+                    body {
+                        font-family: 'Roboto', sans-serif;
+                        background-color: <t t-esc="bg_color"/>;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .header {
+                        background-color: #212529;
+                        color: white;
+                        padding: 15px;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                    }
+                    .navigation {
+                        display: flex;
+                        margin-top: 15px;
+                    }
+                    .navigation a {
+                        color: white;
+                        margin-right: 15px;
+                        text-decoration: none;
+                        font-weight: bold;
+                    }
+                    .navigation a:hover {
+                        text-decoration: underline;
+                        opacity: 0.8;
+                    }
+                    .content {
+                        padding: 20px;
+                    }
+                    .page-title {
+                        color: <t t-esc="title_color"/>;
+                        border-bottom: 2px solid <t t-esc="title_color"/>;
+                        padding-bottom: 10px;
+                        margin-bottom: 20px;
+                    }
+                    .footer {
+                        background-color: #212529;
+                        color: white;
+                        text-align: center;
+                        padding: 10px;
+                        position: fixed;
+                        bottom: 0;
+                        width: 100%;
+                    }
+                    <t t-raw="extra_css"/>
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>Alandicted ERP - <t t-esc="page_title"/></h2>
+                    <div class="navigation">
+                        <a href="/alandicted/dashboard">Dashboard</a>
+                        <a href="/alandicted/inventory">Inventory</a>
+                        <a href="/alandicted/project">Project</a>
+                        <a href="/alandicted">Home</a>
+                        <a href="/alandicted/debug">Debug</a>
+                    </div>
+                </div>
+                <div class="content">
+                    <h1 class="page-title"><t t-esc="page_title"/></h1>
+                    <div class="container">
+                        <t t-raw="0"/>
+                    </div>
+                </div>
+                <div class="footer">
+                    © 2025 Alandicted ERP System
+                </div>
+                <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+            </body>
+        </html>
+    </template>
+</odoo> 

@@ -1,0 +1,23 @@
+{
+    'name': 'Alandicted',
+    'version': '1.0',
+    'summary': 'Alandicted ERP System',
+    'description': 'A custom ERP system with dashboard, inventory and project management',
+    'category': 'Customizations',
+    'author': 'Alandicted',
+    'website': '',
+    'license': 'LGPL-3',
+    'depends': ['base', 'web'],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/common_templates.xml',
+        'views/dashboard_templates.xml',
+        'views/inventory_templates.xml',
+        'views/project_templates.xml',
+        'views/debug_template.xml',
+        'views/menu.xml',
+    ],
+    'application': True,
+    'installable': True,
+    'auto_install': False,
+} 

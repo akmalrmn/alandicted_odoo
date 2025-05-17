@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inventory Template -->
+    <template id="inventory_template" name="Inventory">
+        <t t-call="alandicted_odoo.base_layout">
+            <t t-set="page_title">Inventory</t>
+            <t t-set="bg_color">#ffffff</t>
+            <t t-set="header_color">#27ae60</t>
+            <t t-set="title_color">#2ecc71</t>
+            <t t-set="extra_css">
+                .action-buttons {
+                    margin-bottom: 20px;
+                    text-align: right;
+                }
+                .action-buttons .btn {
+                    margin-left: 8px;
+                }
+                .filters {
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                }
+                .filters > * {
+                    margin-right: 10px;
+                }
+                .filters .form-control {
+                    max-width: 300px;
+                }
+                .inventory-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .inventory-table th {
+                    background-color: #f8f9fa;
+                    padding: 10px;
+                    text-align: left;
+                    border-bottom: 2px solid #e9ecef;
+                }
+                .inventory-table td {
+                    padding: 10px;
+                    border-bottom: 1px solid #e9ecef;
+                }
+                .colored-row-red {
+                    background-color: #ffcccb;
+                }
+                .colored-row-yellow {
+                    background-color: #ffffcc;
+                }
+                .status-badge {
+                    padding: 5px 10px;
+                    border-radius: 15px;
+                    font-size: 12px;
+                    color: white;
+                    text-align: center;
+                    display: inline-block;
+                    width: 100px;
+                }
+                .status-completed {
+                    background-color: #2ecc71;
+                }
+                .status-pending {
+                    background-color: #a2d9a1;
+                }
+            </t>
+            <!-- Header with action buttons -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="action-buttons">
+                        <button class="btn btn-outline-secondary">Export to excel</button>
+                        <button class="btn btn-outline-secondary">Import Supply</button>
+                        <button class="btn btn-dark">+ New Supply</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="filters">
+                        <input type="text" class="form-control" placeholder="Search order id"/>
+                        <button class="btn btn-outline-secondary"><i class="fa fa-calendar"></i></button>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                Sales <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                Status <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                Filter <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"/></th>
+                                    <th>Supply ID</th>
+                                    <th>Date</th>
+                                    <th>Supplier</th>
+                                    <th>Category</th>
+                                    <th>Storage Location</th>
+                                    <th>Items</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7676</td>
+                                    <td>06/30/2022</td>
+                                    <td>Ramesh Choudhary</td>
+                                    <td>xx</td>
+                                    <td>Lalitpur</td>
+                                    <td>3</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7676</td>
+                                    <td>06/30/2022</td>
+                                    <td>Ramesh Choudhary</td>
+                                    <td>xx</td>
+                                    <td>Lalitpur</td>
+                                    <td>3</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7676</td>
+                                    <td>06/30/2022</td>
+                                    <td>Ramesh Choudhary</td>
+                                    <td>xx</td>
+                                    <td>Lalitpur</td>
+                                    <td>3</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                </tr>
+                                <tr class="colored-row-red">
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7676</td>
+                                    <td>06/30/2022</td>
+                                    <td>Ramesh Choudhary</td>
+                                    <td>xx</td>
+                                    <td>Lalitpur</td>
+                                    <td>3</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                </tr>
+                                <tr class="colored-row-yellow">
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7676</td>
+                                    <td>06/30/2022</td>
+                                    <td>Ramesh Choudhary</td>
+                                    <td>xx</td>
+                                    <td>Lalitpur</td>
+                                    <td>3</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo> 

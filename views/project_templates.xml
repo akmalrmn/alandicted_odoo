@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Project Template -->
+    <template id="project_template" name="Project">
+        <t t-call="alandicted_odoo.base_layout">
+            <t t-set="page_title">Projects</t>
+            <t t-set="bg_color">#ffffff</t>
+            <t t-set="header_color">#e74c3c</t>
+            <t t-set="title_color">#c0392b</t>
+            <t t-set="extra_css">
+                .action-buttons {
+                    margin-bottom: 20px;
+                    text-align: right;
+                }
+                .action-buttons .btn {
+                    margin-left: 8px;
+                }
+                .filters {
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                }
+                .filters > * {
+                    margin-right: 10px;
+                }
+                .filters .form-control {
+                    max-width: 300px;
+                }
+                .project-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .project-table th {
+                    background-color: #f8f9fa;
+                    padding: 10px;
+                    text-align: left;
+                    border-bottom: 2px solid #e9ecef;
+                }
+                .project-table td {
+                    padding: 10px;
+                    border-bottom: 1px solid #e9ecef;
+                }
+                .colored-row-red {
+                    background-color: #ffcccb;
+                }
+                .colored-row-yellow {
+                    background-color: #ffffcc;
+                }
+                .status-badge {
+                    padding: 5px 10px;
+                    border-radius: 15px;
+                    font-size: 12px;
+                    color: white;
+                    text-align: center;
+                    display: inline-block;
+                    width: 100px;
+                }
+                .status-completed {
+                    background-color: #2ecc71;
+                }
+                .status-pending {
+                    background-color: #a2d9a1;
+                }
+                .status-inprogress {
+                    background-color: #3498db;
+                }
+            </t>
+            <!-- Header with action buttons -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="action-buttons">
+                        <button class="btn btn-outline-secondary">Export to pdf</button>
+                        <button class="btn btn-dark">+ New Project</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="filters">
+                        <input type="text" class="form-control" placeholder="Search project ID"/>
+                        <button class="btn btn-outline-secondary"><i class="fa fa-calendar"></i></button>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                Sales <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                Status <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                Filter <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="project-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"/></th>
+                                    <th>Project ID</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Description</th>
+                                    <th>Budget</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7676</td>
+                                    <td>06/30/2022</td>
+                                    <td>Acme Corp</td>
+                                    <td>Website Redesign</td>
+                                    <td>$15,000</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7677</td>
+                                    <td>07/15/2022</td>
+                                    <td>TechSolutions</td>
+                                    <td>Mobile App</td>
+                                    <td>$25,000</td>
+                                    <td><span class="status-badge status-inprogress">In Progress</span></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7678</td>
+                                    <td>07/22/2022</td>
+                                    <td>Global Industries</td>
+                                    <td>ERP Implementation</td>
+                                    <td>$45,000</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                </tr>
+                                <tr class="colored-row-red">
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7679</td>
+                                    <td>08/05/2022</td>
+                                    <td>Omega Retail</td>
+                                    <td>POS System</td>
+                                    <td>$18,500</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                </tr>
+                                <tr class="colored-row-yellow">
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7680</td>
+                                    <td>08/12/2022</td>
+                                    <td>Vista Healthcare</td>
+                                    <td>Medical App</td>
+                                    <td>$35,000</td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo> 

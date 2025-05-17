@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="alandicted_root_menu" 
+              name="Alandicted ERP" 
+              web_icon="alandicted,static/description/icon.png" 
+              sequence="1"/>
+
+    <!-- Actions for menus -->
+    <record id="alandicted_dashboard_action" model="ir.actions.act_url">
+        <field name="name">Dashboard</field>
+        <field name="url">/alandicted/dashboard</field>
+        <field name="target">self</field>
+    </record>
+    
+    <record id="alandicted_inventory_action" model="ir.actions.act_url">
+        <field name="name">Inventory</field>
+        <field name="url">/alandicted/inventory</field>
+        <field name="target">self</field>
+    </record>
+    
+    <record id="alandicted_project_action" model="ir.actions.act_url">
+        <field name="name">Project</field>
+        <field name="url">/alandicted/project</field>
+        <field name="target">self</field>
+    </record>
+
+    <!-- Dashboard Menu -->
+    <menuitem id="alandicted_dashboard_menu" 
+              name="Dashboard" 
+              parent="alandicted_root_menu" 
+              action="alandicted_dashboard_action" 
+              sequence="10"/>
+
+    <!-- Inventory Menu -->
+    <menuitem id="alandicted_inventory_menu" 
+              name="Inventory" 
+              parent="alandicted_root_menu" 
+              action="alandicted_inventory_action" 
+              sequence="20"/>
+
+    <!-- Project Menu -->
+    <menuitem id="alandicted_project_menu" 
+              name="Project" 
+              parent="alandicted_root_menu" 
+              action="alandicted_project_action" 
+              sequence="30"/>
+</odoo> 
