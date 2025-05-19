@@ -4,8 +4,8 @@
     <template id="dashboard_template" name="Dashboard">
         <t t-call="alandicted_odoo.base_layout">
             <t t-set="page_title">Dashboard</t>
-            <t t-set="bg_color">#f0f7ff</t>
-            <t t-set="header_color">#3498db</t>
+            <t t-set="bg_color">#f7fbff</t>
+            <t t-set="header_color">#2c3e50</t>
             <t t-set="title_color">#2980b9</t>
             <t t-set="extra_css">
                 .dashboard-section {
@@ -73,7 +73,142 @@
                     justify-content: space-between;
                     align-items: center;
                 }
+                /* Tambahan CSS untuk fitur baru */
+                .filters-dashboard {
+                    display: flex;
+                    margin-bottom: 20px;
+                    align-items: center;
+                }
+                .date-range-picker {
+                    margin-left: 15px;
+                }
+                .kpi-card {
+                    border-radius: 8px;
+                    padding: 15px;
+                    display: flex;
+                    align-items: center;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                    margin-bottom: 20px;
+                }
+                .kpi-icon {
+                    font-size: 24px;
+                    margin-right: 15px;
+                }
+                .kpi-content {
+                    flex: 1;
+                }
+                .kpi-title {
+                    font-size: 14px;
+                    opacity: 0.9;
+                }
+                .kpi-value {
+                    font-size: 22px;
+                    font-weight: bold;
+                    margin: 5px 0;
+                }
+                .kpi-change {
+                    font-size: 12px;
+                }
+                .kpi-change.positive {
+                    color: #a3f7bf;
+                }
+                .kpi-change.negative {
+                    color: #ff7675;
+                }
+                .progress-bars {
+                    margin-top: 20px;
+                }
+                .progress {
+                    height: 10px;
+                    border-radius: 5px;
+                }
+                .progress-item {
+                    margin-bottom: 15px;
+                }
+                
+                /* Responsivitas untuk mobile */
+                @media (max-width: 768px) {
+                    .metric-card {
+                        margin-bottom: 20px;
+                    }
+                    .chart-container {
+                        height: 180px;
+                    }
+                    .section-title {
+                        font-size: 20px;
+                    }
+                    .metric-title {
+                        font-size: 16px;
+                    }
+                    .metric-value {
+                        font-size: 20px;
+                    }
+                    .kpi-card {
+                        margin-bottom: 15px;
+                    }
+                }
             </t>
+            
+            <!-- Filter Periode -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="filters-dashboard">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active">Hari Ini</button>
+                            <button type="button" class="btn btn-outline-primary">Minggu Ini</button>
+                            <button type="button" class="btn btn-outline-primary">Bulan Ini</button>
+                            <button type="button" class="btn btn-outline-primary">Tahun Ini</button>
+                        </div>
+                        <div class="date-range-picker ml-3">
+                            <button class="btn btn-outline-secondary"><i class="fa fa-calendar"></i> Rentang Kustom</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- KPI Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="kpi-card bg-primary text-white">
+                        <div class="kpi-icon"><i class="fa fa-shopping-cart"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-title">Total Transaksi</div>
+                            <div class="kpi-value">12,500</div>
+                            <div class="kpi-change positive">+12% <i class="fa fa-arrow-up"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="kpi-card bg-success text-white">
+                        <div class="kpi-icon"><i class="fa fa-money-bill"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-title">Revenue</div>
+                            <div class="kpi-value">Rp 2.5M</div>
+                            <div class="kpi-change positive">+8% <i class="fa fa-arrow-up"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="kpi-card bg-warning text-white">
+                        <div class="kpi-icon"><i class="fa fa-box"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-title">Stok Tersedia</div>
+                            <div class="kpi-value">85%</div>
+                            <div class="kpi-change negative">-3% <i class="fa fa-arrow-down"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="kpi-card bg-info text-white">
+                        <div class="kpi-icon"><i class="fa fa-project-diagram"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-title">Proyek Aktif</div>
+                            <div class="kpi-value">8</div>
+                            <div class="kpi-change positive">+2 <i class="fa fa-arrow-up"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Sales Section -->
             <div class="dashboard-section">
@@ -83,7 +218,7 @@
                     <div class="col-md-4">
                         <div class="metric-card">
                             <div class="dashboard-card-header">
-                                <div class="metric-title">Total Penjualan</div>
+                                <div class="metric-title">Total Penjualan Peralatan Listrik</div>
                                 <button class="export-btn"><i class="fa fa-calendar"></i></button>
                             </div>
                             <div class="metric-value">312,000</div>
@@ -108,8 +243,8 @@
                             </div>
                             <ul class="list-items">
                                 <li>Kabel listrik (3,100 pcs)</li>
-                                <li>Solar panel (2,819 pcs)</li>
-                                <li>Generator (1,400 pcs)</li>
+                                <li>Generator (2,819 pcs)</li>
+                                <li>Transformer (1,400 pcs)</li>
                             </ul>
                         </div>
                     </div>
@@ -126,8 +261,9 @@
                                 <canvas id="customerPieChart"></canvas>
                             </div>
                             <ul class="list-items">
-                                <li>PLN (98%)</li>
-                                <li>Conko (1%)</li>
+                                <li>PLN (75%)</li>
+                                <li>Industri Swasta (15%)</li>
+                                <li>Proyek Pemerintah (10%)</li>
                             </ul>
                         </div>
                     </div>
@@ -189,7 +325,137 @@
                     </div>
                 </div>
             </div>
-
+            
+            <!-- Inventory Section -->
+            <div class="dashboard-section">
+                <h2 class="section-title">Inventaris</h2>
+                <div class="row">
+                    <!-- Stock Status Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Status Stok</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <div class="metric-value">85%</div>
+                            <div class="metric-subvalue">Tingkat Ketersediaan</div>
+                            <!-- Bar Chart for Stock -->
+                            <div class="chart-container">
+                                <canvas id="stockChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stock Forecast Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Prediksi Kebutuhan</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <div class="metric-value">+15%</div>
+                            <div class="metric-subvalue">Proyeksi Bulan Depan</div>
+                            <!-- Line Chart for Forecast -->
+                            <div class="chart-container">
+                                <canvas id="forecastChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Material Distribution Card -->
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Distribusi Material</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <!-- Pie Chart for Material Distribution -->
+                            <div class="chart-container">
+                                <canvas id="materialDistributionChart"></canvas>
+                            </div>
+                            <ul class="list-items">
+                                <li>Proyek Jakarta (45%)</li>
+                                <li>Proyek Surabaya (30%)</li>
+                                <li>Proyek Bandung (25%)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Status Section -->
+            <div class="dashboard-section">
+                <h2 class="section-title">Status Proyek</h2>
+                <div class="row">
+                    <!-- Project Progress Card -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Progress Proyek</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <div class="progress-bars">
+                                <div class="progress-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Proyek PLN Jakarta</span>
+                                        <span>75%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                <div class="progress-item mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Proyek Industri Surabaya</span>
+                                        <span>45%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                                <div class="progress-item mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Proyek PLN Bandung</span>
+                                        <span>90%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                                <div class="progress-item mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Proyek Pemerintah Medan</span>
+                                        <span>35%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Timeline Card -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="dashboard-card-header">
+                                <div class="metric-title">Timeline Proyek</div>
+                                <button class="export-btn"><i class="fa fa-calendar"></i></button>
+                            </div>
+                            <!-- Horizontal Bar Chart for Project Timeline -->
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="projectTimelineChart"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span>On-time: <strong>75%</strong></span>
+                                    <span>Delayed: <strong>25%</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Add Chart.js library and initialize charts -->
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
@@ -202,7 +468,7 @@
                             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                             datasets: [{
                                 label: 'Sales',
-                                data: [19000, 22000, 18000, 24000, 21000, 25000],
+                                data: [25000, 27000, 23000, 30000, 28000, 32000],
                                 backgroundColor: 'rgba(30, 107, 69, 0.7)',
                                 borderColor: 'rgba(30, 107, 69, 1)',
                                 borderWidth: 1
@@ -236,7 +502,7 @@
                     var topProductsChart = new Chart(topProductsCtx, {
                         type: 'bar',
                         data: {
-                            labels: ['Kabel listrik', 'Solar panel', 'Generator'],
+                            labels: ['Kabel listrik', 'Generator', 'Transformer'],
                             datasets: [{
                                 label: 'Units Sold',
                                 data: [3100, 2819, 1400],
@@ -274,9 +540,9 @@
                     var customerPieChart = new Chart(customerPieCtx, {
                         type: 'pie',
                         data: {
-                            labels: ['PLN', 'Conko', 'Others'],
+                            labels: ['PLN', 'Industri Swasta', 'Proyek Pemerintah'],
                             datasets: [{
-                                data: [98, 1, 1],
+                                data: [75, 15, 10],
                                 backgroundColor: [
                                     'rgba(30, 107, 69, 0.8)',
                                     'rgba(46, 204, 113, 0.8)',
@@ -386,10 +652,10 @@
                     var expensiveProductsChart = new Chart(expensiveProductsCtx, {
                         type: 'bar',
                         data: {
-                            labels: ['Generator', 'Kabel listrik'],
+                            labels: ['Generator', 'Kabel listrik', 'Transformer'],
                             datasets: [{
                                 label: 'Price (Rp)',
-                                data: [300000000, 20000000],
+                                data: [300000000, 20000000, 150000000],
                                 backgroundColor: 'rgba(30, 107, 69, 0.7)',
                                 borderColor: 'rgba(30, 107, 69, 1)',
                                 borderWidth: 1
@@ -418,8 +684,167 @@
                             }
                         }
                     });
+                    
+                    // Stock Chart (New)
+                    var stockCtx = document.getElementById('stockChart').getContext('2d');
+                    var stockChart = new Chart(stockCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Kabel', 'Komponen', 'Material Pendukung'],
+                            datasets: [{
+                                label: 'Stok Tersedia (%)',
+                                data: [85, 70, 90],
+                                backgroundColor: 'rgba(30, 107, 69, 0.7)',
+                                borderColor: 'rgba(30, 107, 69, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Forecast Chart (New)
+                    var forecastCtx = document.getElementById('forecastChart').getContext('2d');
+                    var forecastChart = new Chart(forecastCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            datasets: [{
+                                label: 'Prediksi Kebutuhan',
+                                data: [100, 110, 105, 115, 120, 135],
+                                backgroundColor: 'rgba(30, 107, 69, 0.1)',
+                                borderColor: 'rgba(30, 107, 69, 1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Material Distribution Chart (New)
+                    var materialDistributionCtx = document.getElementById('materialDistributionChart').getContext('2d');
+                    var materialDistributionChart = new Chart(materialDistributionCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Proyek Jakarta', 'Proyek Surabaya', 'Proyek Bandung'],
+                            datasets: [{
+                                data: [45, 30, 25],
+                                backgroundColor: [
+                                    'rgba(30, 107, 69, 0.8)',
+                                    'rgba(46, 204, 113, 0.8)',
+                                    'rgba(82, 190, 128, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(30, 107, 69, 1)',
+                                    'rgba(46, 204, 113, 1)',
+                                    'rgba(82, 190, 128, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Project Timeline Chart (New)
+                    var projectTimelineCtx = document.getElementById('projectTimelineChart').getContext('2d');
+                    var projectTimelineChart = new Chart(projectTimelineCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Proyek PLN Jakarta', 'Proyek Industri Surabaya', 'Proyek PLN Bandung', 'Proyek Pemerintah Medan'],
+                            datasets: [
+                                {
+                                    label: 'Rencana',
+                                    data: [90, 60, 100, 45],
+                                    backgroundColor: 'rgba(46, 204, 113, 0.5)',
+                                    borderColor: 'rgba(46, 204, 113, 1)',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Aktual',
+                                    data: [75, 45, 90, 35],
+                                    backgroundColor: 'rgba(41, 128, 185, 0.5)',
+                                    borderColor: 'rgba(41, 128, 185, 1)',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
                 });
             </script>
         </t>
     </template>
-</odoo> 
+</odoo>

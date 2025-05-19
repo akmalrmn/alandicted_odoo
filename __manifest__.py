@@ -1,6 +1,6 @@
 {
     'name': 'Alandicted',
-    'version': '1.0',
+    'version': '1.1',
     'summary': 'Alandicted ERP System',
     'description': 'A custom ERP system with dashboard, inventory and project management',
     'category': 'Customizations',
