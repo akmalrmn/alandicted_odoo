@@ -384,13 +384,6 @@
                                         <input type="text" class="form-control" name="storage_location" id="storage_location" required="required"/>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="items">Package Quantity</label>
-                                        <input type="number" class="form-control" name="items" id="items" min="1" value="1"/>
-                                        <small class="form-text text-muted">Number of units per package/container</small>
-                                    </div>
-                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">

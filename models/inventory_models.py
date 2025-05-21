@@ -9,7 +9,7 @@ class InventorySupply(models.Model):
     _description = 'Inventory Supply'
     _order = 'date desc'
 
-    name = fields.Char('Supply ID', default=lambda self: self.env['ir.sequence'].next_by_code('alandicted.inventory.supply') or '#000')
+    name = fields.Char('Supply ID', readonly=True)
     date = fields.Date('Date', default=fields.Date.today)
     supplier = fields.Char('Supplier', required=True)
     category = fields.Char('Category', required=True)
@@ -22,7 +22,41 @@ class InventorySupply(models.Model):
     original_stock = fields.Integer('Original Stock', default=0)
     current_stock = fields.Integer('Current Stock', default=0)
     
+    @api.model
+    def create(self, vals):
+        """Override create method to generate supply ID that reuses deleted IDs"""
+        if not vals.get('name'):
+            # Get all existing supply IDs
+            existing_ids = self.search([]).mapped('name')
+            numeric_ids = []
+            
+            # Extract numeric parts from existing IDs
+            for id_str in existing_ids:
+                if id_str.startswith('#'):
+                    try:
+                        numeric_ids.append(int(id_str[1:]))
+                    except ValueError:
+                        continue
+            
+            # Find the next available ID (either first gap or max+1)
+            next_id = 1
+            if numeric_ids:
+                numeric_ids.sort()
+                # Find first gap in sequence
+                for i, num in enumerate(numeric_ids, 1):
+                    if i < num:
+                        next_id = i
+                        break
+                else:
+                    # If no gaps found, use max+1
+                    next_id = max(numeric_ids) + 1
+            
+            vals['name'] = f'#{next_id:04d}'
+            
+        return super(InventorySupply, self).create(vals)
+    
     def get_stock_level_status(self):
+        """Returns the stock level status based on current and original stock"""
         if not self.original_stock:
             return 'normal'
         
