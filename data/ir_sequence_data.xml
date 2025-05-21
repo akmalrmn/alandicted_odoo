@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_alandicted_inventory_supply" model="ir.sequence">
+            <field name="name">Inventory Supply</field>
+            <field name="code">alandicted.inventory.supply</field>
+            <field name="prefix">#</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo> 

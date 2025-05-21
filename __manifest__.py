@@ -10,6 +10,7 @@
     'depends': ['base', 'web'],
     'data': [
         'security/ir.model.access.csv',
+        'data/ir_sequence_data.xml',
         'views/common_templates.xml',
         'views/dashboard_templates.xml',
         'views/inventory_templates.xml',

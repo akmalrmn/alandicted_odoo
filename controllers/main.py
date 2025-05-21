@@ -3,6 +3,10 @@
 
 from odoo import http
 from odoo.http import request
+import base64
+import io
+import xlsxwriter
+import json
 
 
 class AlandictedController(http.Controller):
@@ -166,7 +170,51 @@ class AlandictedController(http.Controller):
     @http.route('/alandicted/inventory', type='http', auth='user', website=True)
     def inventory(self, **kwargs):
         try:
-            return request.render('alandicted_odoo.inventory_template', {})
+            start_date = kwargs.get('start_date', False)
+            end_date = kwargs.get('end_date', False)
+            status_filter = kwargs.get('status', False)
+            category_filter = kwargs.get('category', False)
+            
+            domain = []
+            if start_date and end_date:
+                domain += [('date', '>=', start_date), ('date', '<=', end_date)]
+            if status_filter:
+                domain += [('status', '=', status_filter)]
+            if category_filter:
+                domain += [('category', '=', category_filter)]
+            
+            supplies = request.env['alandicted.inventory.supply'].search(domain, order='name')
+            
+            all_categories = request.env['alandicted.inventory.supply'].search([]).mapped('category')
+            unique_categories = list(set(all_categories))
+            
+            inventory_items = []
+            for supply in supplies:
+                stock_status = supply.get_stock_level_status()
+                inventory_items.append({
+                    'id': supply.id,
+                    'supply_id': supply.name,
+                    'date': supply.date,
+                    'supplier': supply.supplier,
+                    'category': supply.category,
+                    'storage_location': supply.storage_location,
+                    'items': supply.items,
+                    'status': supply.status,
+                    'stock_status': stock_status,
+                    'original_stock': supply.original_stock,
+                    'current_stock': supply.current_stock,
+                })
+                
+            template_vals = {
+                'inventory_items': inventory_items,
+                'start_date': start_date or '',
+                'end_date': end_date or '',
+                'status_filter': status_filter or '',
+                'category_filter': category_filter or '',
+                'categories': unique_categories
+            }
+            
+            return request.render('alandicted_odoo.inventory_template', template_vals)
         except Exception as e:
             return f"""
             <html>
@@ -182,6 +230,123 @@ class AlandictedController(http.Controller):
                         </div>
                         <a href="/alandicted" class="btn btn-primary">Return to Home</a>
                         <a href="/alandicted/debug" class="btn btn-secondary">Debug Information</a>
+                    </div>
+                </body>
+            </html>
+            """
+            
+    @http.route('/alandicted/inventory/add', type='http', auth='user', website=True)
+    def add_supply(self, **kwargs):
+        try:
+            return request.render('alandicted_odoo.inventory_add_supply_template', {})
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error loading add supply template</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
+                    </div>
+                </body>
+            </html>
+            """
+
+    @http.route('/alandicted/inventory/save', type='http', auth='user', website=True, methods=['POST'], csrf=False)
+    def save_supply(self, **post):
+        try:
+            supply = request.env['alandicted.inventory.supply'].create({
+                'supplier': post.get('supplier'),
+                'category': post.get('category'),
+                'storage_location': post.get('storage_location'),
+                'items': int(post.get('items', 1)),
+                'status': post.get('status', 'pending'),
+                'original_stock': int(post.get('original_stock', 0)),
+                'current_stock': int(post.get('current_stock', 0)),
+            })
+            
+            return request.redirect('/alandicted/inventory')
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error saving supply</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory/add" class="btn btn-primary">Try Again</a>
+                        <a href="/alandicted/inventory" class="btn btn-secondary">Return to Inventory</a>
+                    </div>
+                </body>
+            </html>
+            """
+            
+    @http.route('/alandicted/inventory/export', type='http', auth='user', website=True)
+    def export_inventory(self, **kwargs):
+        try:
+            supplies = request.env['alandicted.inventory.supply'].search([])
+            
+            output = io.BytesIO()
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet('Inventory')
+            
+            headers = ['Supply ID', 'Date', 'Supplier', 'Category', 'Storage Location', 
+                       'Items', 'Status', 'Original Stock', 'Current Stock', 'Stock Status']
+            for col, header in enumerate(headers):
+                worksheet.write(0, col, header)
+                
+            for row, supply in enumerate(supplies, start=1):
+                stock_status = supply.get_stock_level_status()
+                worksheet.write(row, 0, supply.name)
+                worksheet.write(row, 1, supply.date.strftime('%Y-%m-%d') if supply.date else '')
+                worksheet.write(row, 2, supply.supplier)
+                worksheet.write(row, 3, supply.category)
+                worksheet.write(row, 4, supply.storage_location)
+                worksheet.write(row, 5, supply.items)
+                worksheet.write(row, 6, dict(supply._fields['status'].selection).get(supply.status))
+                worksheet.write(row, 7, supply.original_stock)
+                worksheet.write(row, 8, supply.current_stock)
+                worksheet.write(row, 9, stock_status)
+                
+            workbook.close()
+            
+            output.seek(0)
+            data = output.read()
+            b64_data = base64.b64encode(data)
+            
+            filename = 'inventory_export.xlsx'
+            return request.make_response(
+                data,
+                headers=[
+                    ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+                    ('Content-Disposition', f'attachment; filename="{filename}"')
+                ]
+            )
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error exporting inventory</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
                     </div>
                 </body>
             </html>
@@ -206,6 +371,90 @@ class AlandictedController(http.Controller):
                         </div>
                         <a href="/alandicted" class="btn btn-primary">Return to Home</a>
                         <a href="/alandicted/debug" class="btn btn-secondary">Debug Information</a>
+                    </div>
+                </body>
+            </html>
+            """
+    
+    @http.route('/alandicted/inventory/delete/<int:supply_id>', type='http', auth='user', website=True)
+    def delete_supply(self, supply_id, **kwargs):
+        try:
+            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
+            if supply:
+                supply.unlink()
+                
+            return request.redirect('/alandicted/inventory')
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error deleting supply</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
+                    </div>
+                </body>
+            </html>
+            """
+    
+    @http.route('/alandicted/inventory/update_stock/<int:supply_id>/<int:quantity>', type='http', auth='user', website=True)
+    def update_stock(self, supply_id, quantity, **kwargs):
+        try:
+            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
+            if supply:
+                new_stock = supply.current_stock + quantity
+                if new_stock < 0:
+                    new_stock = 0
+                supply.write({'current_stock': new_stock})
+                
+            return request.redirect('/alandicted/inventory')
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error updating stock</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
+                    </div>
+                </body>
+            </html>
+            """
+    
+    @http.route('/alandicted/inventory/change_status/<int:supply_id>/<string:status>', type='http', auth='user', website=True)
+    def change_status(self, supply_id, status, **kwargs):
+        try:
+            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
+            if supply and status in ['completed', 'pending']:
+                supply.write({'status': status})
+                
+            return request.redirect('/alandicted/inventory')
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error changing status</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
                     </div>
                 </body>
             </html>
