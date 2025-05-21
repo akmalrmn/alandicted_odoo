@@ -8,5 +8,13 @@
             <field name="padding">4</field>
             <field name="company_id" eval="False"/>
         </record>
+        
+        <record id="seq_alandicted_project" model="ir.sequence">
+            <field name="name">Project</field>
+            <field name="code">alandicted.project</field>
+            <field name="prefix">#</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
     </data>
 </odoo> 

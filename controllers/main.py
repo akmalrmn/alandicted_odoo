@@ -8,7 +8,6 @@ import io
 import xlsxwriter
 import json
 
-
 class AlandictedController(http.Controller):
     
     @http.route('/alandicted', type='http', auth='user', website=True)
@@ -355,9 +354,36 @@ class AlandictedController(http.Controller):
     @http.route('/alandicted/project', type='http', auth='user', website=True)
     def project(self, **kwargs):
         try:
-            # Get projects from session
-            projects = request.session.get('projects', [])
-            return request.render('alandicted_odoo.project_template', {'projects': projects})
+            domain = []
+            
+            # Apply date filter if provided
+            if kwargs.get('start_date') and kwargs.get('end_date'):
+                domain.append(('date', '>=', kwargs.get('start_date')))
+                domain.append(('date', '<=', kwargs.get('end_date')))
+            
+            # Get projects from database
+            projects_data = []
+            projects = request.env['alandicted.project'].search(domain, order='date desc')
+            
+            for project in projects:
+                item_name = project.item_id.category if project.item_id else ''
+                
+                projects_data.append({
+                    'id': project.id,
+                    'project_id': project.name,
+                    'date': project.date.strftime('%m/%d/%Y') if project.date else '',
+                    'buyer': project.buyer,
+                    'item': item_name,
+                    'quantity': project.quantity,
+                    'destination': project.destination,
+                    'status': project.status
+                })
+            
+            return request.render('alandicted_odoo.project_template', {
+                'projects': projects_data if projects_data else None,
+                'start_date': kwargs.get('start_date', ''),
+                'end_date': kwargs.get('end_date', '')
+            })
         except Exception as e:
             return f"""
             <html>
@@ -381,44 +407,66 @@ class AlandictedController(http.Controller):
     @http.route('/alandicted/project/add', type='http', auth='user', website=True)
     def add_project(self, **kwargs):
         if request.httprequest.method == 'POST':
-            # Format date to display format MM/DD/YYYY
-            date_obj = None
             try:
+                # Create project in database
+                project_vals = {
+                    'buyer': kwargs.get('buyer', ''),
+                    'destination': kwargs.get('destination', ''),
+                    'quantity': int(kwargs.get('quantity', 0)),
+                    'status': kwargs.get('status', 'pending'),
+                }
+                
+                # Set date if provided
                 if kwargs.get('date'):
-                    from datetime import datetime
-                    date_obj = datetime.strptime(kwargs.get('date'), '%Y-%m-%d')
-                    formatted_date = date_obj.strftime('%m/%d/%Y')
-                else:
-                    formatted_date = ""
-            except Exception:
-                formatted_date = kwargs.get('date', '')
-            
-            # Generate a random project ID
-            import random
-            project_id = f"#{random.randint(7000, 9999)}"
-            
-            # Store project data in session
-            if not request.session.get('projects'):
-                request.session['projects'] = []
-            
-            new_project = {
-                'project_id': project_id,
-                'date': formatted_date,
-                'buyer': kwargs.get('buyer', ''),
-                'item': kwargs.get('item', ''),
-                'quantity': kwargs.get('quantity', '0'),
-                'destination': kwargs.get('destination', ''),
-                'status': kwargs.get('status', 'pending')
-            }
-            
-            projects = request.session.get('projects', [])
-            projects.append(new_project)
-            request.session['projects'] = projects
-            
-            return request.redirect('/alandicted/project')
+                    project_vals['date'] = kwargs.get('date')
+                
+                # Set item_id if provided
+                if kwargs.get('item_id'):
+                    project_vals['item_id'] = int(kwargs.get('item_id'))
+                
+                # Create project
+                request.env['alandicted.project'].sudo().create(project_vals)
+                
+                return request.redirect('/alandicted/project')
+            except Exception as e:
+                return f"""
+                <html>
+                    <head>
+                        <title>Error</title>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                    </head>
+                    <body>
+                        <div class="container mt-5">
+                            <div class="alert alert-danger">
+                                <h4>Error creating project</h4>
+                                <p>{str(e)}</p>
+                            </div>
+                            <a href="/alandicted/project/add" class="btn btn-primary">Try Again</a>
+                            <a href="/alandicted/project" class="btn btn-secondary">Return to Projects</a>
+                        </div>
+                    </body>
+                </html>
+                """
         else:
             try:
-                return request.render('alandicted_odoo.add_project_template', {})
+                # Get completed inventory items for dropdown
+                inventory_items = []
+                supplies = request.env['alandicted.inventory.supply'].search([
+                    ('status', '=', 'completed'),
+                    ('current_stock', '>', 0)
+                ])
+                
+                for supply in supplies:
+                    inventory_items.append({
+                        'id': supply.id,
+                        'supply_id': supply.name,
+                        'category': supply.category,
+                        'current_stock': supply.current_stock
+                    })
+                
+                return request.render('alandicted_odoo.add_project_template', {
+                    'inventory_items': inventory_items
+                })
             except Exception as e:
                 return f"""
                 <html>
@@ -436,45 +484,51 @@ class AlandictedController(http.Controller):
                         </div>
                     </body>
                 </html>
-                """ 
-    @http.route('/alandicted/inventory/delete/<int:supply_id>', type='http', auth='user', website=True)
-    def delete_supply(self, supply_id, **kwargs):
-        try:
-            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
-            if supply:
-                supply.unlink()
-                
-            return request.redirect('/alandicted/inventory')
-        except Exception as e:
-            return f"""
-            <html>
-                <head>
-                    <title>Error</title>
-                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-                </head>
-                <body>
-                    <div class="container mt-5">
-                        <div class="alert alert-danger">
-                            <h4>Error deleting supply</h4>
-                            <p>{str(e)}</p>
-                        </div>
-                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
-                    </div>
-                </body>
-            </html>
-            """
+                """
     
-    @http.route('/alandicted/inventory/update_stock/<int:supply_id>/<int:quantity>', type='http', auth='user', website=True)
-    def update_stock(self, supply_id, quantity, **kwargs):
+    @http.route('/alandicted/project/export_pdf', type='http', auth='user', website=True)
+    def export_project_pdf(self, **kwargs):
         try:
-            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
-            if supply:
-                new_stock = supply.current_stock + quantity
-                if new_stock < 0:
-                    new_stock = 0
-                supply.write({'current_stock': new_stock})
-                
-            return request.redirect('/alandicted/inventory')
+            # Get projects
+            domain = []
+            
+            # Apply date filter if provided
+            if kwargs.get('start_date') and kwargs.get('end_date'):
+                domain.append(('date', '>=', kwargs.get('start_date')))
+                domain.append(('date', '<=', kwargs.get('end_date')))
+            
+            projects = request.env['alandicted.project'].search(domain, order='date desc')
+            
+            if not projects:
+                # No projects found, return a message
+                return """
+                <html>
+                    <head>
+                        <title>No Projects</title>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                    </head>
+                    <body>
+                        <div class="container mt-5">
+                            <div class="alert alert-warning">
+                                <h4>No Projects Found</h4>
+                                <p>There are no projects available to export to PDF.</p>
+                            </div>
+                            <a href="/alandicted/project" class="btn btn-primary">Return to Projects</a>
+                        </div>
+                    </body>
+                </html>
+                """
+            
+            # Generate PDF using Odoo's report engine
+            pdf = request.env.ref('alandicted_odoo.project_report').sudo()._render_qweb_pdf(projects.ids)[0]
+            
+            pdfhttpheaders = [
+                ('Content-Type', 'application/pdf'),
+                ('Content-Length', len(pdf)),
+                ('Content-Disposition', 'attachment; filename=projects.pdf;')
+            ]
+            
+            return request.make_response(pdf, headers=pdfhttpheaders)
         except Exception as e:
             return f"""
             <html>
@@ -485,37 +539,10 @@ class AlandictedController(http.Controller):
                 <body>
                     <div class="container mt-5">
                         <div class="alert alert-danger">
-                            <h4>Error updating stock</h4>
+                            <h4>Error generating PDF</h4>
                             <p>{str(e)}</p>
                         </div>
-                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
-                    </div>
-                </body>
-            </html>
-            """
-    
-    @http.route('/alandicted/inventory/change_status/<int:supply_id>/<string:status>', type='http', auth='user', website=True)
-    def change_status(self, supply_id, status, **kwargs):
-        try:
-            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
-            if supply and status in ['completed', 'pending']:
-                supply.write({'status': status})
-                
-            return request.redirect('/alandicted/inventory')
-        except Exception as e:
-            return f"""
-            <html>
-                <head>
-                    <title>Error</title>
-                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-                </head>
-                <body>
-                    <div class="container mt-5">
-                        <div class="alert alert-danger">
-                            <h4>Error changing status</h4>
-                            <p>{str(e)}</p>
-                        </div>
-                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
+                        <a href="/alandicted/project" class="btn btn-primary">Return to Projects</a>
                     </div>
                 </body>
             </html>
