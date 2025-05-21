@@ -29,6 +29,13 @@ After installation, you can access the module from the main menu, or navigate di
 - Inventory: `/alandicted/inventory`
 - Project: `/alandicted/project`
 
+## This is us
+1. Albert
+2. Maul
+3. Panji
+4. Zaidan
+5. Akmal
+
 ## Development
 
 This module is built step by step, with each functionality carefully implemented and tested before moving on to the next feature.
