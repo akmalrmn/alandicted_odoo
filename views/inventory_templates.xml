@@ -61,14 +61,169 @@
                 .status-pending {
                     background-color: #a2d9a1;
                 }
+                .action-icon {
+                    cursor: pointer;
+                    color: #777;
+                    font-size: 16px;
+                    margin: 0 3px;
+                }
+                .action-icon:hover {
+                    color: #333;
+                }
+                .delete-icon {
+                    color: #dc3545;
+                }
+                .delete-icon:hover {
+                    color: #b02a37;
+                }
+                .date-filter {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                }
+                .date-filter label {
+                    margin-right: 10px;
+                    margin-bottom: 0;
+                    white-space: nowrap;
+                }
+                .date-filter input {
+                    margin-right: 10px;
+                }
+                .stock-actions {
+                    display: flex;
+                    align-items: center;
+                    white-space: nowrap;
+                }
+                .stock-actions button {
+                    padding: 0px 8px;
+                    margin: 0 2px;
+                    font-size: 14px;
+                }
+                .quantity-cell {
+                    white-space: nowrap;
+                }
+                .quantity-badge {
+                    padding: 3px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    margin-left: 5px;
+                }
+                .quantity-badge.critical {
+                    background-color: #ffcccb;
+                    color: #dc3545;
+                }
+                .quantity-badge.warning {
+                    background-color: #fff3cd;
+                    color: #664d03;
+                }
             </t>
+            <script type="text/javascript">
+//<![CDATA[
+                function searchInventory() {
+                    var input, filter, table, tr, td, i, txtValue;
+                    input = document.getElementById("searchInput");
+                    filter = input.value.toUpperCase();
+                    table = document.getElementById("inventoryTable");
+                    tr = table.getElementsByTagName("tr");
+
+                    for (i = 1; i < tr.length; i++) {
+                        // Check all columns (0-5)
+                        var found = false;
+                        for (var j = 0; j <= 4; j++) {
+                            td = tr[i].getElementsByTagName("td")[j];
+                            if (td) {
+                                txtValue = td.textContent || td.innerText;
+                                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (found) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+                
+                function confirmDelete(id, supplyId) {
+                    if (confirm('Are you sure you want to delete supply #' + supplyId + '?')) {
+                        window.location.href = '/alandicted/inventory/delete/' + id;
+                    }
+                }
+                
+                function filterByDate() {
+                    var startDate = document.getElementById("startDate").value;
+                    var endDate = document.getElementById("endDate").value;
+                    
+                    if (startDate && endDate) {
+                        window.location.href = '/alandicted/inventory?start_date=' + startDate + '&end_date=' + endDate;
+                    } else {
+                        alert("Please select both start and end dates");
+                    }
+                }
+                
+                function clearDateFilter() {
+                    window.location.href = '/alandicted/inventory';
+                }
+                
+                function updateStock(id, action) {
+                    var quantity = 1;
+                    if (action === 'subtract') {
+                        quantity = -1;
+                    }
+                    
+                    if (action === 'custom') {
+                        var input = prompt("Enter quantity to add (use negative number to subtract):", "0");
+                        if (input === null) return;
+                        quantity = parseInt(input);
+                        if (isNaN(quantity)) {
+                            alert("Please enter a valid number");
+                            return;
+                        }
+                    }
+                    
+                    window.location.href = '/alandicted/inventory/update_stock/' + id + '/' + quantity;
+                }
+                
+                function filterByStatus(status) {
+                    window.location.href = '/alandicted/inventory?status=' + status;
+                }
+                
+                function filterByCategory(category) {
+                    window.location.href = '/alandicted/inventory?category=' + category;
+                }
+                
+                function changeStatus(id, currentStatus) {
+                    var newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+                    window.location.href = '/alandicted/inventory/change_status/' + id + '/' + newStatus;
+                }
+//]]>
+            </script>
+            
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+            
             <!-- Header with action buttons -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="action-buttons">
-                        <button class="btn btn-outline-secondary">Export to excel</button>
-                        <button class="btn btn-outline-secondary">Import Supply</button>
-                        <button class="btn btn-dark">+ New Supply</button>
+                        <a href="/alandicted/inventory/export" class="btn btn-outline-secondary">Export to excel</a>
+                        <a href="/alandicted/inventory/add" class="btn btn-dark">+ New Supply</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Filter -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="date-filter">
+                        <label for="startDate">Date Range:</label>
+                        <input type="date" id="startDate" class="form-control" t-att-value="start_date or ''"/>
+                        <label for="endDate">to</label>
+                        <input type="date" id="endDate" class="form-control" t-att-value="end_date or ''"/>
+                        <button class="btn btn-sm btn-primary ml-2" onclick="filterByDate()">Apply</button>
+                        <button class="btn btn-sm btn-secondary ml-2" onclick="clearDateFilter()">Clear</button>
                     </div>
                 </div>
             </div>
@@ -77,25 +232,29 @@
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="filters">
-                        <input type="text" class="form-control" placeholder="Search order id"/>
-                        <button class="btn btn-outline-secondary"><i class="fa fa-calendar"></i></button>
-                        
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                Sales <i class="fa fa-chevron-down"></i>
-                            </button>
-                        </div>
+                        <input type="text" id="searchInput" onkeyup="searchInventory()" class="form-control" placeholder="Search by ID, supplier, category or location"/>
                         
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                 Status <i class="fa fa-chevron-down"></i>
                             </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/alandicted/inventory">All</a>
+                                <a class="dropdown-item" href="javascript:void(0)" onclick="filterByStatus('completed')">Completed</a>
+                                <a class="dropdown-item" href="javascript:void(0)" onclick="filterByStatus('pending')">Pending</a>
+                            </div>
                         </div>
                         
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                Filter <i class="fa fa-chevron-down"></i>
+                                Category <i class="fa fa-chevron-down"></i>
                             </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/alandicted/inventory">All Categories</a>
+                                <t t-foreach="categories" t-as="category">
+                                    <a class="dropdown-item" t-att-href="'/alandicted/inventory?category=' + (category or '')" t-esc="category"></a>
+                                </t>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -105,70 +264,66 @@
             <div class="row">
                 <div class="col-12">
                     <div class="table-responsive">
-                        <table class="inventory-table">
+                        <table id="inventoryTable" class="inventory-table">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox"/></th>
                                     <th>Supply ID</th>
                                     <th>Date</th>
                                     <th>Supplier</th>
                                     <th>Category</th>
                                     <th>Storage Location</th>
-                                    <th>Items</th>
+                                    <th>Max Stock</th>
+                                    <th>Available Stock</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7676</td>
-                                    <td>06/30/2022</td>
-                                    <td>Ramesh Choudhary</td>
-                                    <td>xx</td>
-                                    <td>Lalitpur</td>
-                                    <td>3</td>
-                                    <td><span class="status-badge status-completed">Completed</span></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7676</td>
-                                    <td>06/30/2022</td>
-                                    <td>Ramesh Choudhary</td>
-                                    <td>xx</td>
-                                    <td>Lalitpur</td>
-                                    <td>3</td>
-                                    <td><span class="status-badge status-pending">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7676</td>
-                                    <td>06/30/2022</td>
-                                    <td>Ramesh Choudhary</td>
-                                    <td>xx</td>
-                                    <td>Lalitpur</td>
-                                    <td>3</td>
-                                    <td><span class="status-badge status-completed">Completed</span></td>
-                                </tr>
-                                <tr class="colored-row-red">
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7676</td>
-                                    <td>06/30/2022</td>
-                                    <td>Ramesh Choudhary</td>
-                                    <td>xx</td>
-                                    <td>Lalitpur</td>
-                                    <td>3</td>
-                                    <td><span class="status-badge status-completed">Completed</span></td>
-                                </tr>
-                                <tr class="colored-row-yellow">
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7676</td>
-                                    <td>06/30/2022</td>
-                                    <td>Ramesh Choudhary</td>
-                                    <td>xx</td>
-                                    <td>Lalitpur</td>
-                                    <td>3</td>
-                                    <td><span class="status-badge status-completed">Completed</span></td>
-                                </tr>
+                                <t t-if="inventory_items and len(inventory_items) > 0">
+                                    <t t-foreach="inventory_items" t-as="item">
+                                        <tr t-attf-class="#{item['stock_status'] == 'critical' and 'colored-row-red' or item['stock_status'] == 'warning' and 'colored-row-yellow' or ''}">
+                                            <td><t t-esc="item['supply_id']"/></td>
+                                            <td><t t-esc="item['date']"/></td>
+                                            <td><t t-esc="item['supplier']"/></td>
+                                            <td><t t-esc="item['category']"/></td>
+                                            <td><t t-esc="item['storage_location']"/></td>
+                                            <td><t t-esc="item['original_stock']"/></td>
+                                            <td class="quantity-cell">
+                                                <t t-esc="item['current_stock']"/>
+                                                <span t-if="item['stock_status'] == 'critical'" class="quantity-badge critical">Low</span>
+                                                <span t-if="item['stock_status'] == 'warning'" class="quantity-badge warning">Warning</span>
+                                                <div class="stock-actions mt-1">
+                                                    <button class="btn btn-sm btn-outline-secondary" t-attf-onclick="updateStock(#{item['id']}, 'add')">+</button>
+                                                    <button class="btn btn-sm btn-outline-secondary" t-attf-onclick="updateStock(#{item['id']}, 'subtract')">-</button>
+                                                    <button class="btn btn-sm btn-outline-primary ml-1" t-attf-onclick="updateStock(#{item['id']}, 'custom')">Edit</button>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <t t-if="item['status'] == 'completed'">
+                                                    <span class="status-badge status-completed">Completed</span>
+                                                </t>
+                                                <t t-elif="item['status'] == 'pending'">
+                                                    <span class="status-badge status-pending">Pending</span>
+                                                </t>
+                                                <div class="mt-1">
+                                                    <button class="btn btn-sm btn-outline-secondary" t-attf-onclick="changeStatus(#{item['id']}, '#{item['status']}')">
+                                                        Switch to <t t-if="item['status'] == 'completed'">Pending</t><t t-else="">Completed</t>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0)" t-attf-onclick="confirmDelete(#{item['id']}, '#{item['supply_id']}')" title="Delete">
+                                                    <i class="fas fa-trash action-icon delete-icon"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <tr>
+                                        <td colspan="9" class="text-center">No inventory items found. Add a new supply to get started.</td>
+                                    </tr>
+                                </t>
                             </tbody>
                         </table>
                     </div>
@@ -176,4 +331,102 @@
             </div>
         </t>
     </template>
-</odoo> 
+    
+    <!-- Add Supply Template -->
+    <template id="inventory_add_supply_template" name="Add New Supply">
+        <t t-call="alandicted_odoo.base_layout">
+            <t t-set="page_title">Add New Supply</t>
+            <t t-set="bg_color">#ffffff</t>
+            <t t-set="header_color">#27ae60</t>
+            <t t-set="title_color">#2ecc71</t>
+            <t t-set="extra_css">
+                .form-section {
+                    background-color: #fff;
+                    padding: 25px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+                .form-group label {
+                    font-weight: 500;
+                }
+                .form-actions {
+                    margin-top: 30px;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+                .form-actions button {
+                    margin-left: 10px;
+                }
+            </t>
+            
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <div class="form-section">
+                        <form action="/alandicted/inventory/save" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="supplier">Supplier</label>
+                                        <input type="text" class="form-control" name="supplier" id="supplier" required="required"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="category">Category</label>
+                                        <input type="text" class="form-control" name="category" id="category" required="required"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="storage_location">Storage Location</label>
+                                        <input type="text" class="form-control" name="storage_location" id="storage_location" required="required"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="items">Package Quantity</label>
+                                        <input type="number" class="form-control" name="items" id="items" min="1" value="1"/>
+                                        <small class="form-text text-muted">Number of units per package/container</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="original_stock">Total Stock Capacity</label>
+                                        <input type="number" class="form-control" name="original_stock" id="original_stock" min="0" value="0"/>
+                                        <small class="form-text text-muted">The maximum capacity or target stock level</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="current_stock">Available Stock</label>
+                                        <input type="number" class="form-control" name="current_stock" id="current_stock" min="0" value="0"/>
+                                        <small class="form-text text-muted">The current quantity in stock</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="status">Status</label>
+                                        <select class="form-control" name="status" id="status">
+                                            <option value="pending">Pending</option>
+                                            <option value="completed">Completed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <a href="/alandicted/inventory" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Save Supply</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
