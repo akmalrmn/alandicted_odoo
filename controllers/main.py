@@ -354,6 +354,114 @@ class AlandictedController(http.Controller):
     @http.route('/alandicted/project', type='http', auth='user', website=True)
     def project(self, **kwargs):
         try:
+            return request.render('alandicted_odoo.project_template', {})
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error loading project template</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted" class="btn btn-primary">Return to Home</a>
+                        <a href="/alandicted/debug" class="btn btn-secondary">Debug Information</a>
+                    </div>
+                </body>
+            </html>
+            """
+    
+    @http.route('/alandicted/inventory/delete/<int:supply_id>', type='http', auth='user', website=True)
+    def delete_supply(self, supply_id, **kwargs):
+        try:
+            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
+            if supply:
+                supply.unlink()
+                
+            return request.redirect('/alandicted/inventory')
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error deleting supply</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
+                    </div>
+                </body>
+            </html>
+            """
+    
+    @http.route('/alandicted/inventory/update_stock/<int:supply_id>/<int:quantity>', type='http', auth='user', website=True)
+    def update_stock(self, supply_id, quantity, **kwargs):
+        try:
+            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
+            if supply:
+                new_stock = supply.current_stock + quantity
+                if new_stock < 0:
+                    new_stock = 0
+                supply.write({'current_stock': new_stock})
+                
+            return request.redirect('/alandicted/inventory')
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error updating stock</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
+                    </div>
+                </body>
+            </html>
+            """
+    
+    @http.route('/alandicted/inventory/change_status/<int:supply_id>/<string:status>', type='http', auth='user', website=True)
+    def change_status(self, supply_id, status, **kwargs):
+        try:
+            supply = request.env['alandicted.inventory.supply'].browse(supply_id)
+            if supply and status in ['completed', 'pending']:
+                supply.write({'status': status})
+                
+            return request.redirect('/alandicted/inventory')
+        except Exception as e:
+            return f"""
+            <html>
+                <head>
+                    <title>Error</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                </head>
+                <body>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger">
+                            <h4>Error changing status</h4>
+                            <p>{str(e)}</p>
+                        </div>
+                        <a href="/alandicted/inventory" class="btn btn-primary">Return to Inventory</a>
+                    </div>
+                </body>
+            </html>
+            """
+    
+    @http.route('/alandicted/project', type='http', auth='user', website=True)
+    def project(self, **kwargs):
+        try:
             domain = []
             
             # Apply date filter if provided
