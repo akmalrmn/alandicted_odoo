@@ -15,6 +15,7 @@
         'views/dashboard_templates.xml',
         'views/inventory_templates.xml',
         'views/project_templates.xml',
+        'views/project_report.xml',
         'views/debug_template.xml',
         'views/menu.xml',
     ],

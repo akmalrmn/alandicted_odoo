@@ -40,6 +40,28 @@
                 .filters .filter-buttons {
                     display: flex;
                     gap: 10px;
+                    align-items: center;
+                }
+                .date-filter {
+                    display: flex;
+                    align-items: center;
+                    margin-right: 10px;
+                }
+                .date-filter input {
+                    width: 140px;
+                    height: 38px;
+                    border-radius: 4px;
+                    margin: 0 3px;
+                }
+                .date-separator {
+                    margin: 0 3px;
+                    color: #495057;
+                }
+                .date-filter button {
+                    height: 38px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
                 .project-table {
                     width: 100%;
@@ -102,12 +124,35 @@
                     background-color: #e9ecef;
                     color: #333;
                 }
+                .no-projects-message {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 40px 0;
+                }
+                .no-projects-message i {
+                    margin-bottom: 15px;
+                    color: #ccc;
+                }
+                .no-projects-message h4 {
+                    margin-bottom: 10px;
+                    color: #555;
+                }
+                .no-projects-message p {
+                    margin-bottom: 20px;
+                    color: #777;
+                    max-width: 400px;
+                }
+                .no-projects-message .btn {
+                    font-weight: 500;
+                }
             </t>
             <!-- Header with action buttons -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="action-buttons">
-                        <button class="btn btn-outline-secondary">Export to pdf</button>
+                        <a href="/alandicted/project/export_pdf" class="btn btn-outline-secondary">Export to PDF</a>
                         <a href="/alandicted/project/add" class="btn btn-dark">+ New Project</a>
                     </div>
                 </div>
@@ -122,12 +167,12 @@
                             <input type="text" id="searchInput" class="form-control" placeholder="Search Project ID, Buyer, or Item"/>
                         </div>
                         <div class="filter-buttons">
-                            <button class="btn btn-outline-secondary"><i class="fa fa-calendar"></i></button>
-
-                            <div class="dropdown">
-                                <button id="salesFilterButton" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    Sales <i class="fa fa-chevron-down"></i>
-                                </button>
+                            <div class="date-filter">
+                                <input type="date" id="startDate" class="form-control" t-att-value="start_date or ''" placeholder="Start Date"/>
+                                <span class="date-separator">to</span>
+                                <input type="date" id="endDate" class="form-control" t-att-value="end_date or ''" placeholder="End Date"/>
+                                <button class="btn btn-sm btn-primary ml-2" id="applyDateFilter">Apply</button>
+                                <button class="btn btn-sm btn-secondary ml-2" id="clearDateFilter">Clear</button>
                             </div>
 
                             <div class="dropdown">
@@ -139,12 +184,6 @@
                                     <a class="dropdown-item status-filter-item" href="#" data-status="completed">Completed</a>
                                     <a class="dropdown-item status-filter-item" href="#" data-status="pending">Pending</a>
                                 </div>
-                            </div>
-
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    Filter <i class="fa fa-chevron-down"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -168,51 +207,6 @@
                                 </tr>
                             </thead>
                             <tbody id="projectTableBody">
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7676</td>
-                                    <td>06/30/2022</td>
-                                    <td>PLN - Jl. Soedirman</td>
-                                    <td>Lalitpur</td>
-                                    <td>3</td>
-                                    <td><span class="status-badge status-completed">Completed</span></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7689</td>
-                                    <td>07/02/2022</td>
-                                    <td>PLN - Jl. Gatot Subroto</td>
-                                    <td>Kathmandu</td>
-                                    <td>5</td>
-                                    <td><span class="status-badge status-pending">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7692</td>
-                                    <td>07/05/2022</td>
-                                    <td>PLN - Jl. Sudirman</td>
-                                    <td>Bhaktapur</td>
-                                    <td>2</td>
-                                    <td><span class="status-badge status-completed">Completed</span></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7701</td>
-                                    <td>07/08/2022</td>
-                                    <td>PLN - Jl. Thamrin</td>
-                                    <td>Pokhara</td>
-                                    <td>4</td>
-                                    <td><span class="status-badge status-pending">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7705</td>
-                                    <td>07/10/2022</td>
-                                    <td>PLN - Jl. Asia Afrika</td>
-                                    <td>Chitwan</td>
-                                    <td>6</td>
-                                    <td><span class="status-badge status-completed">Completed</span></td>
-                                </tr>
                                 <!-- Dynamically add rows from session data -->
                                 <t t-if="projects">
                                     <t t-foreach="projects" t-as="project">
@@ -234,6 +228,20 @@
                                         </tr>
                                     </t>
                                 </t>
+                                <t t-if="not projects">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="no-projects-message">
+                                                <i class="fa fa-folder-open fa-3x text-muted mb-3"></i>
+                                                <h4 class="text-muted">No projects found</h4>
+                                                <p class="text-muted mb-4">There are no projects in the system yet.</p>
+                                                <a href="/alandicted/project/add" class="btn btn-dark">
+                                                    <i class="fa fa-plus mr-2"></i>Add New Project
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </t>
                             </tbody>
                         </table>
                     </div>
@@ -244,17 +252,35 @@
                 //<![CDATA[
                 document.addEventListener('DOMContentLoaded', function () {
                     const searchInput = document.getElementById('searchInput');
-                    const salesFilterButton = document.getElementById('salesFilterButton'); // Assuming you'll add dropdown items for this
                     const statusFilterButton = document.getElementById('statusFilterButton');
                     const statusDropdownItems = document.querySelectorAll('#statusDropdownMenu .status-filter-item');
                     const projectTableBody = document.getElementById('projectTableBody');
                     const rows = projectTableBody.getElementsByTagName('tr');
                     let currentStatusFilter = 'all'; // Default to 'all'
+                    
+                    // Date filter functionality
+                    const applyDateFilterBtn = document.getElementById('applyDateFilter');
+                    const clearDateFilterBtn = document.getElementById('clearDateFilter');
+                    const startDateInput = document.getElementById('startDate');
+                    const endDateInput = document.getElementById('endDate');
+                    
+                    applyDateFilterBtn.addEventListener('click', function() {
+                        const startDate = startDateInput.value;
+                        const endDate = endDateInput.value;
+                        
+                        if (startDate && endDate) {
+                            window.location.href = `/alandicted/project?start_date=${startDate}&end_date=${endDate}`;
+                        } else {
+                            alert('Please select both start and end dates');
+                        }
+                    });
+                    
+                    clearDateFilterBtn.addEventListener('click', function() {
+                        window.location.href = '/alandicted/project';
+                    });
 
                     function filterTable() {
                         const searchText = searchInput.value.toLowerCase();
-                        // TODO: Get selected sales filter value
-                        // const salesFilter = salesFilterButton.textContent.trim(); // This needs to be dynamic based on dropdown selection
 
                         for (let i = 0; i < rows.length; i++) {
                             const row = rows[i];
@@ -269,11 +295,6 @@
                             if (searchText && !projectId.includes(searchText) && !buyer.includes(searchText) && !item.includes(searchText)) {
                                 display = false;
                             }
-
-                            // TODO: Add sales filter logic
-                            // if (salesFilter !== 'Sales' && !row.cells[X].textContent.toLowerCase().includes(salesFilter.toLowerCase())) { // Replace X with actual sales column index
-                            //     display = false;
-                            // }
 
                             // Status filter logic
                             if (currentStatusFilter !== 'all' && status !== currentStatusFilter) {
@@ -302,15 +323,6 @@
                             filterTable();
                         });
                     });
-
-                    // TODO: Add event listeners for sales dropdown once it's populated
-                    // document.querySelectorAll('#salesDropdownMenu .dropdown-item').forEach(item => {
-                    //     item.addEventListener('click', function() {
-                    //         // Update sales filter button text
-                    //         // Update a variable for current sales filter
-                    //         filterTable();
-                    //     });
-                    // });
                 });
                 //]]>
             </script>
@@ -386,13 +398,22 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="item">Item</label>
-                                    <input type="text" id="item" name="item" class="form-control" required="required"/>
+                                    <select id="item" name="item_id" class="form-control" required="required">
+                                        <option value="">Select Item</option>
+                                        <t t-foreach="inventory_items" t-as="item">
+                                            <option t-att-value="item['id']">
+                                                <t t-esc="item['category']"/> - <t t-esc="item['supply_id']"/> 
+                                                (Available: <t t-esc="item['current_stock']"/>)
+                                            </option>
+                                        </t>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="quantity">Quantity</label>
                                     <input type="number" id="quantity" name="quantity" class="form-control" min="1" required="required"/>
+                                    <small class="form-text text-muted" id="max-quantity"></small>
                                 </div>
                             </div>
                         </div>
@@ -429,6 +450,43 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     // Set default date to today
                     document.getElementById('date').valueAsDate = new Date();
+                    
+                    // Handle item selection to update max quantity
+                    const itemSelect = document.getElementById('item');
+                    const quantityInput = document.getElementById('quantity');
+                    const maxQuantityInfo = document.getElementById('max-quantity');
+                    
+                    itemSelect.addEventListener('change', function() {
+                        const selectedOption = this.options[this.selectedIndex];
+                        if (selectedOption && selectedOption.value) {
+                            const text = selectedOption.text;
+                            const match = text.match(/Available:\s*(\d+)/);
+                            
+                            if (match && match[1]) {
+                                const maxAvailable = parseInt(match[1]);
+                                maxQuantityInfo.textContent = `Maximum available: ${maxAvailable}`;
+                                quantityInput.setAttribute('max', maxAvailable);
+                                
+                                // Set default quantity to 1 or max if less than 1
+                                if (maxAvailable < 1) {
+                                    quantityInput.value = maxAvailable;
+                                } else {
+                                    quantityInput.value = 1;
+                                }
+                            }
+                        } else {
+                            maxQuantityInfo.textContent = '';
+                            quantityInput.removeAttribute('max');
+                        }
+                    });
+                    
+                    // Validate quantity doesn't exceed available
+                    quantityInput.addEventListener('input', function() {
+                        const max = this.getAttribute('max');
+                        if (max && parseInt(this.value) > parseInt(max)) {
+                            this.value = max;
+                        }
+                    });
                 });
                 //]]>
             </script>
