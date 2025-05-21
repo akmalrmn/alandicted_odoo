@@ -9,7 +9,7 @@ import xlsxwriter
 import json
 
 class AlandictedController(http.Controller):
-    
+
     @http.route('/alandicted', type='http', auth='user', website=True)
     def index(self, **kwargs):
         # Simple HTML response without a template
@@ -31,7 +31,7 @@ class AlandictedController(http.Controller):
                         <h1>Alandicted ERP System</h1>
                         <p>Welcome to the Alandicted ERP System. Select a module to begin:</p>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card">
@@ -61,7 +61,7 @@ class AlandictedController(http.Controller):
                             </div>
                         </div>
                     </div>
-                    
+
                     <hr>
                     <footer class="text-center">
                         <p>&copy; 2025 Alandicted ERP System</p>
@@ -72,17 +72,17 @@ class AlandictedController(http.Controller):
             </body>
         </html>
         """
-    
+
     @http.route('/alandicted/debug', type='http', auth='user', website=True)
     def debug(self, **kwargs):
         module = request.env['ir.module.module'].sudo().search([('name', '=', 'alandicted_odoo')], limit=1)
         templates = request.env['ir.ui.view'].sudo().search([('module', '=', 'alandicted_odoo')])
-        
+
         template_list = "<ul>"
         for template in templates:
             template_list += f"<li>{template.name} (ID: {template.id}, XML ID: {template.xml_id})</li>"
         template_list += "</ul>"
-        
+
         return f"""
         <html>
             <head>
@@ -100,7 +100,7 @@ class AlandictedController(http.Controller):
                             <p><strong>Latest Version:</strong> {module.latest_version if module else 'N/A'}</p>
                         </div>
                     </div>
-                    
+
                     <div class="card">
                         <div class="card-header">Templates</div>
                         <div class="card-body">
@@ -108,7 +108,7 @@ class AlandictedController(http.Controller):
                             {template_list}
                         </div>
                     </div>
-                    
+
                     <div class="mt-4">
                         <a href="/alandicted" class="btn btn-primary">Return to Home</a>
                         <a href="/alandicted/debug/template" class="btn btn-success">Test Debug Template</a>
@@ -117,7 +117,7 @@ class AlandictedController(http.Controller):
             </body>
         </html>
         """
-    
+
     @http.route('/alandicted/debug/template', type='http', auth='user', website=True)
     def debug_template(self, **kwargs):
         try:
@@ -141,7 +141,7 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/dashboard', type='http', auth='user', website=True)
     def dashboard(self, **kwargs):
         try:
@@ -165,7 +165,7 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/inventory', type='http', auth='user', website=True)
     def inventory(self, **kwargs):
         try:
@@ -173,7 +173,7 @@ class AlandictedController(http.Controller):
             end_date = kwargs.get('end_date', False)
             status_filter = kwargs.get('status', False)
             category_filter = kwargs.get('category', False)
-            
+
             domain = []
             if start_date and end_date:
                 domain += [('date', '>=', start_date), ('date', '<=', end_date)]
@@ -181,12 +181,12 @@ class AlandictedController(http.Controller):
                 domain += [('status', '=', status_filter)]
             if category_filter:
                 domain += [('category', '=', category_filter)]
-            
+
             supplies = request.env['alandicted.inventory.supply'].search(domain, order='name')
-            
+
             all_categories = request.env['alandicted.inventory.supply'].search([]).mapped('category')
             unique_categories = list(set(all_categories))
-            
+
             inventory_items = []
             for supply in supplies:
                 stock_status = supply.get_stock_level_status()
@@ -203,7 +203,7 @@ class AlandictedController(http.Controller):
                     'original_stock': supply.original_stock,
                     'current_stock': supply.current_stock,
                 })
-                
+
             template_vals = {
                 'inventory_items': inventory_items,
                 'start_date': start_date or '',
@@ -212,7 +212,7 @@ class AlandictedController(http.Controller):
                 'category_filter': category_filter or '',
                 'categories': unique_categories
             }
-            
+
             return request.render('alandicted_odoo.inventory_template', template_vals)
         except Exception as e:
             return f"""
@@ -233,7 +233,7 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-            
+
     @http.route('/alandicted/inventory/add', type='http', auth='user', website=True)
     def add_supply(self, **kwargs):
         try:
@@ -269,7 +269,7 @@ class AlandictedController(http.Controller):
                 'original_stock': int(post.get('original_stock', 0)),
                 'current_stock': int(post.get('current_stock', 0)),
             })
-            
+
             return request.redirect('/alandicted/inventory')
         except Exception as e:
             return f"""
@@ -290,21 +290,21 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-            
+
     @http.route('/alandicted/inventory/export', type='http', auth='user', website=True)
     def export_inventory(self, **kwargs):
         try:
             supplies = request.env['alandicted.inventory.supply'].search([])
-            
+
             output = io.BytesIO()
             workbook = xlsxwriter.Workbook(output)
             worksheet = workbook.add_worksheet('Inventory')
-            
-            headers = ['Supply ID', 'Date', 'Supplier', 'Category', 'Storage Location', 
+
+            headers = ['Supply ID', 'Date', 'Supplier', 'Category', 'Storage Location',
                        'Items', 'Status', 'Original Stock', 'Current Stock', 'Stock Status']
             for col, header in enumerate(headers):
                 worksheet.write(0, col, header)
-                
+
             for row, supply in enumerate(supplies, start=1):
                 stock_status = supply.get_stock_level_status()
                 worksheet.write(row, 0, supply.name)
@@ -317,13 +317,13 @@ class AlandictedController(http.Controller):
                 worksheet.write(row, 7, supply.original_stock)
                 worksheet.write(row, 8, supply.current_stock)
                 worksheet.write(row, 9, stock_status)
-                
+
             workbook.close()
-            
+
             output.seek(0)
             data = output.read()
             b64_data = base64.b64encode(data)
-            
+
             filename = 'inventory_export.xlsx'
             return request.make_response(
                 data,
@@ -350,7 +350,7 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/project', type='http', auth='user', website=True)
     def project(self, **kwargs):
         try:
@@ -374,14 +374,14 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/inventory/delete/<int:supply_id>', type='http', auth='user', website=True)
     def delete_supply(self, supply_id, **kwargs):
         try:
             supply = request.env['alandicted.inventory.supply'].browse(supply_id)
             if supply:
                 supply.unlink()
-                
+
             return request.redirect('/alandicted/inventory')
         except Exception as e:
             return f"""
@@ -401,7 +401,7 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/inventory/update_stock/<int:supply_id>/<int:quantity>', type='http', auth='user', website=True)
     def update_stock(self, supply_id, quantity, **kwargs):
         try:
@@ -411,7 +411,7 @@ class AlandictedController(http.Controller):
                 if new_stock < 0:
                     new_stock = 0
                 supply.write({'current_stock': new_stock})
-                
+
             return request.redirect('/alandicted/inventory')
         except Exception as e:
             return f"""
@@ -431,14 +431,14 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/inventory/change_status/<int:supply_id>/<string:status>', type='http', auth='user', website=True)
     def change_status(self, supply_id, status, **kwargs):
         try:
             supply = request.env['alandicted.inventory.supply'].browse(supply_id)
             if supply and status in ['completed', 'pending']:
                 supply.write({'status': status})
-                
+
             return request.redirect('/alandicted/inventory')
         except Exception as e:
             return f"""
@@ -458,24 +458,24 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/project', type='http', auth='user', website=True)
     def project(self, **kwargs):
         try:
             domain = []
-            
+
             # Apply date filter if provided
             if kwargs.get('start_date') and kwargs.get('end_date'):
                 domain.append(('date', '>=', kwargs.get('start_date')))
                 domain.append(('date', '<=', kwargs.get('end_date')))
-            
+
             # Get projects from database
             projects_data = []
             projects = request.env['alandicted.project'].search(domain, order='date desc')
-            
+
             for project in projects:
                 item_name = project.item_id.category if project.item_id else ''
-                
+
                 projects_data.append({
                     'id': project.id,
                     'project_id': project.name,
@@ -486,7 +486,7 @@ class AlandictedController(http.Controller):
                     'destination': project.destination,
                     'status': project.status
                 })
-            
+
             return request.render('alandicted_odoo.project_template', {
                 'projects': projects_data if projects_data else None,
                 'start_date': kwargs.get('start_date', ''),
@@ -511,7 +511,7 @@ class AlandictedController(http.Controller):
                 </body>
             </html>
             """
-    
+
     @http.route('/alandicted/project/add', type='http', auth='user', website=True)
     def add_project(self, **kwargs):
         if request.httprequest.method == 'POST':
@@ -523,18 +523,18 @@ class AlandictedController(http.Controller):
                     'quantity': int(kwargs.get('quantity', 0)),
                     'status': kwargs.get('status', 'pending'),
                 }
-                
+
                 # Set date if provided
                 if kwargs.get('date'):
                     project_vals['date'] = kwargs.get('date')
-                
+
                 # Set item_id if provided
                 if kwargs.get('item_id'):
                     project_vals['item_id'] = int(kwargs.get('item_id'))
-                
+
                 # Create project
                 request.env['alandicted.project'].sudo().create(project_vals)
-                
+
                 return request.redirect('/alandicted/project')
             except Exception as e:
                 return f"""
@@ -563,7 +563,7 @@ class AlandictedController(http.Controller):
                     ('status', '=', 'completed'),
                     ('current_stock', '>', 0)
                 ])
-                
+
                 for supply in supplies:
                     inventory_items.append({
                         'id': supply.id,
@@ -571,7 +571,7 @@ class AlandictedController(http.Controller):
                         'category': supply.category,
                         'current_stock': supply.current_stock
                     })
-                
+
                 return request.render('alandicted_odoo.add_project_template', {
                     'inventory_items': inventory_items
                 })
@@ -593,20 +593,20 @@ class AlandictedController(http.Controller):
                     </body>
                 </html>
                 """
-    
-    @http.route('/alandicted/project/export_pdf', type='http', auth='user', website=True)
-    def export_project_pdf(self, **kwargs):
+
+    @http.route('/alandicted/project/export_excel', type='http', auth="user", website=True, methods=['GET'])
+    def export_project_excel(self, **kwargs):
         try:
             # Get projects
             domain = []
-            
+
             # Apply date filter if provided
             if kwargs.get('start_date') and kwargs.get('end_date'):
                 domain.append(('date', '>=', kwargs.get('start_date')))
                 domain.append(('date', '<=', kwargs.get('end_date')))
-            
+
             projects = request.env['alandicted.project'].search(domain, order='date desc')
-            
+
             if not projects:
                 # No projects found, return a message
                 return """
@@ -619,24 +619,44 @@ class AlandictedController(http.Controller):
                         <div class="container mt-5">
                             <div class="alert alert-warning">
                                 <h4>No Projects Found</h4>
-                                <p>There are no projects available to export to PDF.</p>
+                                <p>There are no projects available to export to Excel.</p>
                             </div>
                             <a href="/alandicted/project" class="btn btn-primary">Return to Projects</a>
                         </div>
                     </body>
                 </html>
                 """
-            
-            # Generate PDF using Odoo's report engine
-            pdf = request.env.ref('alandicted_odoo.project_report').sudo()._render_qweb_pdf(projects.ids)[0]
-            
-            pdfhttpheaders = [
-                ('Content-Type', 'application/pdf'),
-                ('Content-Length', len(pdf)),
-                ('Content-Disposition', 'attachment; filename=projects.pdf;')
+
+            output = io.BytesIO()
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet('Projects')
+
+            headers = ['Project ID', 'Date', 'Buyer', 'Destination', 'Item (Supply ID)', 'Quantity', 'Status']
+            for col, header in enumerate(headers):
+                worksheet.write(0, col, header)
+
+            for row_num, project in enumerate(projects, start=1):
+                status_display = dict(project._fields['status'].selection).get(project.status, project.status)
+
+                worksheet.write(row_num, 0, project.name)
+                worksheet.write(row_num, 1, project.date.strftime('%Y-%m-%d') if project.date else '')
+                worksheet.write(row_num, 2, project.buyer)
+                worksheet.write(row_num, 3, project.destination)
+                worksheet.write(row_num, 4, project.item_id.name if project.item_id else '')
+                worksheet.write(row_num, 5, project.quantity)
+                worksheet.write(row_num, 6, status_display)
+
+            workbook.close()
+
+            output.seek(0)
+            excel_data = output.read()
+
+            excelhttpheaders = [
+                ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+                ('Content-Disposition', 'attachment; filename=projects_export.xlsx')
             ]
-            
-            return request.make_response(pdf, headers=pdfhttpheaders)
+
+            return request.make_response(excel_data, headers=excelhttpheaders)
         except Exception as e:
             return f"""
             <html>
@@ -647,11 +667,11 @@ class AlandictedController(http.Controller):
                 <body>
                     <div class="container mt-5">
                         <div class="alert alert-danger">
-                            <h4>Error generating PDF</h4>
+                            <h4>Error exporting projects to Excel</h4>
                             <p>{str(e)}</p>
                         </div>
                         <a href="/alandicted/project" class="btn btn-primary">Return to Projects</a>
                     </div>
                 </body>
             </html>
-            """ 
+            """
