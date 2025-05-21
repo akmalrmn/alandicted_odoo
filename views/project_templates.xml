@@ -19,26 +19,47 @@
                     margin-bottom: 20px;
                     display: flex;
                     align-items: center;
+                    justify-content: space-between;
                 }
-                .filters > * {
-                    margin-right: 10px;
+                .filters .search-container {
+                    position: relative;
+                    flex: 1;
+                    margin-right: 20px;
                 }
-                .filters .form-control {
-                    max-width: 300px;
+                .filters .search-container i {
+                    position: absolute;
+                    left: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #6c757d;
+                }
+                .filters .search-container input {
+                    padding-left: 35px;
+                    width: 100%;
+                }
+                .filters .filter-buttons {
+                    display: flex;
+                    gap: 10px;
                 }
                 .project-table {
                     width: 100%;
-                    border-collapse: collapse;
+                    border-collapse: separate;
+                    border-spacing: 0;
                 }
                 .project-table th {
-                    background-color: #f8f9fa;
-                    padding: 10px;
+                    background-color: white;
+                    padding: 15px 10px;
                     text-align: left;
-                    border-bottom: 2px solid #e9ecef;
+                    border-bottom: 1px solid #e9ecef;
+                    font-weight: 500;
+                    color: #333;
                 }
                 .project-table td {
-                    padding: 10px;
+                    padding: 15px 10px;
                     border-bottom: 1px solid #e9ecef;
+                }
+                .project-table tr:hover {
+                    background-color: #f8f9fa;
                 }
                 .colored-row-red {
                     background-color: #ffcccb;
@@ -47,22 +68,39 @@
                     background-color: #ffffcc;
                 }
                 .status-badge {
-                    padding: 5px 10px;
-                    border-radius: 15px;
-                    font-size: 12px;
+                    padding: 8px 15px;
+                    border-radius: 20px;
+                    font-size: 14px;
                     color: white;
                     text-align: center;
                     display: inline-block;
-                    width: 100px;
+                    min-width: 120px;
                 }
                 .status-completed {
-                    background-color: #2ecc71;
+                    background-color: #68B984;
                 }
                 .status-pending {
-                    background-color: #a2d9a1;
+                    background-color: #B4E197;
                 }
                 .status-inprogress {
                     background-color: #3498db;
+                }
+                .dropdown-menu {
+                    padding: 8px 0;
+                    border-radius: 8px;
+                    border: 1px solid #e9ecef;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+                .dropdown-item {
+                    padding: 8px 16px;
+                    color: #333;
+                }
+                .dropdown-item:hover {
+                    background-color: #f8f9fa;
+                }
+                .dropdown-item.active {
+                    background-color: #e9ecef;
+                    color: #333;
                 }
             </t>
             <!-- Header with action buttons -->
@@ -70,7 +108,7 @@
                 <div class="col-12">
                     <div class="action-buttons">
                         <button class="btn btn-outline-secondary">Export to pdf</button>
-                        <button class="btn btn-dark">+ New Project</button>
+                        <a href="/alandicted/project/add" class="btn btn-dark">+ New Project</a>
                     </div>
                 </div>
             </div>
@@ -79,25 +117,35 @@
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="filters">
-                        <input type="text" class="form-control" placeholder="Search project ID"/>
-                        <button class="btn btn-outline-secondary"><i class="fa fa-calendar"></i></button>
-                        
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                Sales <i class="fa fa-chevron-down"></i>
-                            </button>
+                        <div class="search-container">
+                            <i class="fa fa-search"></i>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search Project ID, Buyer, or Item"/>
                         </div>
-                        
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                Status <i class="fa fa-chevron-down"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                Filter <i class="fa fa-chevron-down"></i>
-                            </button>
+                        <div class="filter-buttons">
+                            <button class="btn btn-outline-secondary"><i class="fa fa-calendar"></i></button>
+
+                            <div class="dropdown">
+                                <button id="salesFilterButton" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    Sales <i class="fa fa-chevron-down"></i>
+                                </button>
+                            </div>
+
+                            <div class="dropdown">
+                                <button id="statusFilterButton" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Route Status <i class="fa fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="statusFilterButton" id="statusDropdownMenu">
+                                    <a class="dropdown-item status-filter-item" href="#" data-status="all">All Status</a>
+                                    <a class="dropdown-item status-filter-item" href="#" data-status="completed">Completed</a>
+                                    <a class="dropdown-item status-filter-item" href="#" data-status="pending">Pending</a>
+                                </div>
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    Filter <i class="fa fa-chevron-down"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -110,66 +158,280 @@
                         <table class="project-table">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox"/></th>
+                                    <th style="width: 40px;"><input type="checkbox"/></th>
                                     <th>Project ID</th>
                                     <th>Date</th>
-                                    <th>Client</th>
-                                    <th>Description</th>
-                                    <th>Budget</th>
-                                    <th>Status</th>
+                                    <th>Buyer</th>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Route Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="projectTableBody">
                                 <tr>
                                     <td><input type="checkbox"/></td>
                                     <td>#7676</td>
                                     <td>06/30/2022</td>
-                                    <td>Acme Corp</td>
-                                    <td>Website Redesign</td>
-                                    <td>$15,000</td>
+                                    <td>PLN - Jl. Soedirman</td>
+                                    <td>Lalitpur</td>
+                                    <td>3</td>
                                     <td><span class="status-badge status-completed">Completed</span></td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox"/></td>
-                                    <td>#7677</td>
-                                    <td>07/15/2022</td>
-                                    <td>TechSolutions</td>
-                                    <td>Mobile App</td>
-                                    <td>$25,000</td>
-                                    <td><span class="status-badge status-inprogress">In Progress</span></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"/></td>
-                                    <td>#7678</td>
-                                    <td>07/22/2022</td>
-                                    <td>Global Industries</td>
-                                    <td>ERP Implementation</td>
-                                    <td>$45,000</td>
+                                    <td>#7689</td>
+                                    <td>07/02/2022</td>
+                                    <td>PLN - Jl. Gatot Subroto</td>
+                                    <td>Kathmandu</td>
+                                    <td>5</td>
                                     <td><span class="status-badge status-pending">Pending</span></td>
                                 </tr>
-                                <tr class="colored-row-red">
+                                <tr>
                                     <td><input type="checkbox"/></td>
-                                    <td>#7679</td>
-                                    <td>08/05/2022</td>
-                                    <td>Omega Retail</td>
-                                    <td>POS System</td>
-                                    <td>$18,500</td>
+                                    <td>#7692</td>
+                                    <td>07/05/2022</td>
+                                    <td>PLN - Jl. Sudirman</td>
+                                    <td>Bhaktapur</td>
+                                    <td>2</td>
                                     <td><span class="status-badge status-completed">Completed</span></td>
                                 </tr>
-                                <tr class="colored-row-yellow">
+                                <tr>
                                     <td><input type="checkbox"/></td>
-                                    <td>#7680</td>
-                                    <td>08/12/2022</td>
-                                    <td>Vista Healthcare</td>
-                                    <td>Medical App</td>
-                                    <td>$35,000</td>
+                                    <td>#7701</td>
+                                    <td>07/08/2022</td>
+                                    <td>PLN - Jl. Thamrin</td>
+                                    <td>Pokhara</td>
+                                    <td>4</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"/></td>
+                                    <td>#7705</td>
+                                    <td>07/10/2022</td>
+                                    <td>PLN - Jl. Asia Afrika</td>
+                                    <td>Chitwan</td>
+                                    <td>6</td>
                                     <td><span class="status-badge status-completed">Completed</span></td>
                                 </tr>
+                                <!-- Dynamically add rows from session data -->
+                                <t t-if="projects">
+                                    <t t-foreach="projects" t-as="project">
+                                        <tr>
+                                            <td><input type="checkbox"/></td>
+                                            <td><t t-esc="project.get('project_id')"/></td>
+                                            <td><t t-esc="project.get('date')"/></td>
+                                            <td><t t-esc="project.get('buyer')"/></td>
+                                            <td><t t-esc="project.get('item')"/></td>
+                                            <td><t t-esc="project.get('quantity')"/></td>
+                                            <td>
+                                                <span t-att-class="'status-badge status-' + project.get('status')">
+                                                    <t t-if="project.get('status') == 'completed'">Completed</t>
+                                                    <t t-elif="project.get('status') == 'pending'">Pending</t>
+                                                    <t t-elif="project.get('status') == 'inprogress'">In Progress</t>
+                                                    <t t-else="">Unknown</t>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+
+            <script type="text/javascript">
+                //<![CDATA[
+                document.addEventListener('DOMContentLoaded', function () {
+                    const searchInput = document.getElementById('searchInput');
+                    const salesFilterButton = document.getElementById('salesFilterButton'); // Assuming you'll add dropdown items for this
+                    const statusFilterButton = document.getElementById('statusFilterButton');
+                    const statusDropdownItems = document.querySelectorAll('#statusDropdownMenu .status-filter-item');
+                    const projectTableBody = document.getElementById('projectTableBody');
+                    const rows = projectTableBody.getElementsByTagName('tr');
+                    let currentStatusFilter = 'all'; // Default to 'all'
+
+                    function filterTable() {
+                        const searchText = searchInput.value.toLowerCase();
+                        // TODO: Get selected sales filter value
+                        // const salesFilter = salesFilterButton.textContent.trim(); // This needs to be dynamic based on dropdown selection
+
+                        for (let i = 0; i < rows.length; i++) {
+                            const row = rows[i];
+                            const projectId = row.cells[1].textContent.toLowerCase();
+                            const buyer = row.cells[3].textContent.toLowerCase();
+                            const item = row.cells[4].textContent.toLowerCase();
+                            const statusCell = row.cells[6].querySelector('.status-badge');
+                            const status = statusCell ? statusCell.textContent.toLowerCase() : '';
+
+                            let display = true;
+
+                            if (searchText && !projectId.includes(searchText) && !buyer.includes(searchText) && !item.includes(searchText)) {
+                                display = false;
+                            }
+
+                            // TODO: Add sales filter logic
+                            // if (salesFilter !== 'Sales' && !row.cells[X].textContent.toLowerCase().includes(salesFilter.toLowerCase())) { // Replace X with actual sales column index
+                            //     display = false;
+                            // }
+
+                            // Status filter logic
+                            if (currentStatusFilter !== 'all' && status !== currentStatusFilter) {
+                                display = false;
+                            }
+
+                            row.style.display = display ? '' : 'none';
+                        }
+                    }
+
+                    searchInput.addEventListener('keyup', filterTable);
+
+                    statusDropdownItems.forEach(item => {
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const selectedText = this.textContent;
+                            const selectedStatusValue = this.getAttribute('data-status');
+                            
+                            // Remove active class from all items
+                            statusDropdownItems.forEach(dropItem => dropItem.classList.remove('active'));
+                            // Add active class to selected item
+                            this.classList.add('active');
+
+                            statusFilterButton.childNodes[0].nodeValue = selectedText + " ";
+                            currentStatusFilter = selectedStatusValue;
+                            filterTable();
+                        });
+                    });
+
+                    // TODO: Add event listeners for sales dropdown once it's populated
+                    // document.querySelectorAll('#salesDropdownMenu .dropdown-item').forEach(item => {
+                    //     item.addEventListener('click', function() {
+                    //         // Update sales filter button text
+                    //         // Update a variable for current sales filter
+                    //         filterTable();
+                    //     });
+                    // });
+                });
+                //]]>
+            </script>
         </t>
     </template>
-</odoo> 
+
+    <!-- Add Project Template -->
+    <template id="add_project_template" name="Add Project">
+        <t t-call="alandicted_odoo.base_layout">
+            <t t-set="page_title">Add New Project</t>
+            <t t-set="bg_color">#ffffff</t>
+            <t t-set="header_color">#e74c3c</t>
+            <t t-set="title_color">#c0392b</t>
+            <t t-set="extra_css">
+                .form-group label {
+                    font-weight: 500;
+                    color: #333;
+                    margin-bottom: 8px;
+                }
+                .form-control {
+                    border-radius: 4px;
+                    border: 1px solid #ced4da;
+                    padding: 10px 15px;
+                    height: auto;
+                    background-color: #f5f7fa;
+                }
+                .form-control:focus {
+                    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+                    border-color: #e74c3c;
+                }
+                .btn-save {
+                    background-color: #000000;
+                    border-color: #000000;
+                }
+                .btn-save:hover {
+                    background-color: #333333;
+                    border-color: #333333;
+                }
+                .form-row {
+                    margin-bottom: 30px;
+                }
+                .btn-container {
+                    margin-top: 40px;
+                    text-align: right;
+                }
+                .btn {
+                    padding: 10px 25px;
+                    border-radius: 4px;
+                }
+            </t>
+            
+            <div class="row">
+                <div class="col-12">
+                    <form id="add-project-form" action="/alandicted/project/add" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="buyer">Buyer</label>
+                                    <input type="text" id="buyer" name="buyer" class="form-control" placeholder="Buyer name" required="required"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="destination">Destination</label>
+                                    <input type="text" id="destination" name="destination" class="form-control" placeholder="Place" required="required"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="item">Item</label>
+                                    <input type="text" id="item" name="item" class="form-control" required="required"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="quantity">Quantity</label>
+                                    <input type="number" id="quantity" name="quantity" class="form-control" min="1" required="required"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="date">Date</label>
+                                    <input type="date" id="date" name="date" class="form-control" required="required"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="status">Route Status</label>
+                                    <select id="status" name="status" class="form-control" required="required">
+                                        <option value="pending">Pending</option>
+                                        <option value="inprogress">In Progress</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-container">
+                            <a href="/alandicted/project" class="btn btn-outline-dark mr-2">Cancel</a>
+                            <button type="submit" class="btn btn-save text-white">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <script type="text/javascript">
+                //<![CDATA[
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Set default date to today
+                    document.getElementById('date').valueAsDate = new Date();
+                });
+                //]]>
+            </script>
+        </t>
+    </template>
+</odoo>

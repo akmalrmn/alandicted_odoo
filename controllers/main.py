@@ -190,7 +190,9 @@ class AlandictedController(http.Controller):
     @http.route('/alandicted/project', type='http', auth='user', website=True)
     def project(self, **kwargs):
         try:
-            return request.render('alandicted_odoo.project_template', {})
+            # Get projects from session
+            projects = request.session.get('projects', [])
+            return request.render('alandicted_odoo.project_template', {'projects': projects})
         except Exception as e:
             return f"""
             <html>
@@ -209,4 +211,64 @@ class AlandictedController(http.Controller):
                     </div>
                 </body>
             </html>
-            """ 
+            """
+    
+    @http.route('/alandicted/project/add', type='http', auth='user', website=True)
+    def add_project(self, **kwargs):
+        if request.httprequest.method == 'POST':
+            # Format date to display format MM/DD/YYYY
+            date_obj = None
+            try:
+                if kwargs.get('date'):
+                    from datetime import datetime
+                    date_obj = datetime.strptime(kwargs.get('date'), '%Y-%m-%d')
+                    formatted_date = date_obj.strftime('%m/%d/%Y')
+                else:
+                    formatted_date = ""
+            except Exception:
+                formatted_date = kwargs.get('date', '')
+            
+            # Generate a random project ID
+            import random
+            project_id = f"#{random.randint(7000, 9999)}"
+            
+            # Store project data in session
+            if not request.session.get('projects'):
+                request.session['projects'] = []
+            
+            new_project = {
+                'project_id': project_id,
+                'date': formatted_date,
+                'buyer': kwargs.get('buyer', ''),
+                'item': kwargs.get('item', ''),
+                'quantity': kwargs.get('quantity', '0'),
+                'destination': kwargs.get('destination', ''),
+                'status': kwargs.get('status', 'pending')
+            }
+            
+            projects = request.session.get('projects', [])
+            projects.append(new_project)
+            request.session['projects'] = projects
+            
+            return request.redirect('/alandicted/project')
+        else:
+            try:
+                return request.render('alandicted_odoo.add_project_template', {})
+            except Exception as e:
+                return f"""
+                <html>
+                    <head>
+                        <title>Error</title>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+                    </head>
+                    <body>
+                        <div class="container mt-5">
+                            <div class="alert alert-danger">
+                                <h4>Error loading add project template</h4>
+                                <p>{str(e)}</p>
+                            </div>
+                            <a href="/alandicted/project" class="btn btn-primary">Return to Projects</a>
+                        </div>
+                    </body>
+                </html>
+                """ 

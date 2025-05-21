@@ -7,7 +7,10 @@
                 <title>Alandicted - <t t-esc="page_title"/></title>
                 <meta charset="utf-8"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+                <!-- CSS Dependencies -->
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"/>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+                <t t-raw="extra_head or ''"/>
                 <style>
                     body {
                         font-family: 'Roboto', sans-serif;
@@ -76,7 +79,8 @@
                 <div class="footer">
                     © 2025 Alandicted ERP System
                 </div>
-                <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+                <!-- JavaScript Dependencies -->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
             </body>
         </html>
